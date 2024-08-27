@@ -18,6 +18,12 @@
 			"style": {
 				// "navigationBarTitleText": "介绍"
 			}
+		},
+		{
+			"path": "pages/process/process",
+			"style": {
+				"navigationBarTitleText": "流程"
+			}
 		}
 	],
 	"globalStyle": {
