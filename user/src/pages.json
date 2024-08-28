@@ -30,11 +30,41 @@
 			"style": {
 				"navigationBarTitleText": "当前进程"
 			}
+		},
+		{
+			"path": "pages/myth/myth",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#a1d8b0",
 		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#000",
+		"selectedColor": "#397d54",
+		"list": [
+			{
+				"iconPath":"static/homeDefault.png" ,
+				"selectedIconPath": "static/home.png",
+				"pagePath": "pages/intro/intro",
+				"text": "工作室介绍"
+			},
+			{
+				"iconPath": "static/progress_default.png",
+				"selectedIconPath": "static/progress.png",
+				"pagePath": "pages/currentProcess/currentProcess",
+				"text": "进程"
+			},
+			{
+				"iconPath": "static/user_default.png",
+				"selectedIconPath": "static/user.png",
+				"pagePath": "pages/myth/myth",
+				"text": "我的"
+			}
+		]
 	}
 }
