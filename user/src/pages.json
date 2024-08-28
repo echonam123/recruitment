@@ -24,6 +24,12 @@
 			"style": {
 				"navigationBarTitleText": "流程"
 			}
+		},
+		{
+			"path": "pages/currentProcess/currentProcess",
+			"style": {
+				"navigationBarTitleText": "当前进程"
+			}
 		}
 	],
 	"globalStyle": {
