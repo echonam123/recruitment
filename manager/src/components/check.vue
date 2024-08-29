@@ -76,8 +76,10 @@ const filtertype = (filter: string) => {
 const updateSecondaryOptions = () => {
   if (selectedFilter.value) {
     secondaryOptions.value = filtertype(selectedFilter.value);
+    showAllFilter.value = false; // 更新筛选条件时关闭“展示全部”状态
   } else {
     secondaryOptions.value = [];
+    showAllFilter.value = false; // 选择的筛选条件为空时，关闭“展示全部”状态
   }
 };
 //展示所有报名学生
@@ -134,30 +136,32 @@ const tableData = ref([
   ]);
 //渲染表格内容
 const filteredTableData = computed(() => {
-    //初始数据渲染
   if (showAllFilter.value) {
     return tableData.value; 
   }
-  //根据一，二次筛选的关键词，将数据改为对应数据
+  
+  // 如果选择了某个筛选条件，则需要根据筛选条件过滤数据
   let data = tableData.value;
-  switch (selectedFilter.value) {
-    case '学院':
-      data = data.filter(item => item.college === secondaryFilter.value);
-      break;
-    case '专业':
-      data = data.filter(item => item.class === secondaryFilter.value);
-      break;
-    case '进度':
-      data = data.filter(item => item.progress === secondaryFilter.value);
-      break;
-    case '淘汰情况':
-      data = data.filter(item => item.eliminationStatus === secondaryFilter.value);
-      break;
-    case '方向':
-      data = data.filter(item => item.direction === secondaryFilter.value);
-      break;
-    default:
-      break;
+  if (selectedFilter.value && secondaryFilter.value) {
+    switch (selectedFilter.value) {
+      case '学院':
+        data = data.filter(item => item.college === secondaryFilter.value);
+        break;
+      case '专业':
+        data = data.filter(item => item.class === secondaryFilter.value);
+        break;
+      case '进度':
+        data = data.filter(item => item.progress === secondaryFilter.value);
+        break;
+      case '淘汰情况':
+        data = data.filter(item => item.eliminationStatus === secondaryFilter.value);
+        break;
+      case '方向':
+        data = data.filter(item => item.direction === secondaryFilter.value);
+        break;
+      default:
+        break;
+    }
   }
   return data;
 });

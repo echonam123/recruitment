@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import interview from './components/interview.vue';
+import login from './components/login.vue'
 </script>
 
 <template>
-<interview></interview>
+<login></login>
 </template>
 
 <style scoped>
