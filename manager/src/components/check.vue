@@ -132,6 +132,17 @@ const tableData = ref([
       introduction: '对市场策略有深入研究。',
       progress: '进行中',
       eliminationStatus: '未淘汰'
+    },
+    {
+      name: '赵六',
+      college: '经济管理学院',
+      class: '市场营销',
+      studentId: '2021004',
+      direction: '市场策略',
+      phone: '12345678904',
+      introduction: '对市场策略有深入研究。',
+      progress: '进行中',
+      eliminationStatus: '未淘汰'
     }
   ]);
 //渲染表格内容

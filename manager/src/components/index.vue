@@ -1,5 +1,5 @@
 <template>
-    <el-container class="layout-container-demo" style="height: 500px">
+    <el-container class="layout-container-demo" style="height:90%">
       <el-aside width="200px">
         <el-scrollbar>
           <el-menu :default-openeds="['1', '3']">
@@ -14,11 +14,11 @@
             </el-sub-menu>
             <el-sub-menu index="2">
               <template #title>
-                <el-icon><icon-menu /></el-icon>管理操作
+                <el-icon><icon-menu /></el-icon>设置
               </template>
               <el-menu-item-group>
-                <el-menu-item index="2-1"@click="showInterview">设置预约</el-menu-item>
-                <el-menu-item index="2-2">Option 2</el-menu-item>
+                <el-menu-item index="2-1"@click="showInterview">前端预约</el-menu-item>
+                <el-menu-item index="2-2" @click="showInterview">后端预约</el-menu-item>
                 <el-menu-item index="2-3">Option 3</el-menu-item>
               </el-menu-item-group>
             </el-sub-menu>
@@ -39,9 +39,10 @@
   import check from './check.vue';
   import interview from './interview.vue';
   const isCheckVisible = ref(false);
-  const isInterview=ref(false)
+  const isInterview=ref(false);
   function showCheck() {
     isCheckVisible.value = true;
+    isInterview.value=false
   }
   function showInterview() {
     isInterview.value = true;

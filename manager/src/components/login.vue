@@ -23,28 +23,37 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Index from './index.vue';
-
+import axios from 'axios';
 const username = ref('');
 const password = ref('');
 const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
-
 const handleSubmit = () => {
-  console.log(`登录信息: 账号=${username.value}, 密码=${password.value}`);
-  
-  // 模拟成功登录
-  isLoggedIn.value = true;
-  
-  // 重置输入框
-  username.value = '';
-  password.value = '';
+  axios.post('https://39.106.69.15:8081/admin/login', {
+    username: username.value,
+    password: password.value
+  })
+  .then(response => {
+    console.log(response)
+    if (response.data.code===200) {
+      // 登录成功
+      isLoggedIn.value = true;
+      // 重置输入框
+      username.value = '';
+      password.value = '';
+      localStorage.setItem('token', response.data.data.token)
+      console.log(response.data.data.token)
+    } else {
+      // 登录失败处理
+      console.error('登录失败:', response.data.message);
+    }
+  })
+  .catch(error => {
+    console.error('请求失败:', error);
+  });
 };
 </script>
 
 <style scoped>
-.app-container {
-  /* 包含整个应用的容器，确保在切换视图时保持布局 */
-}
-
 .login-container {
   width: 500px;
   height: 400px;
