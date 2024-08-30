@@ -88,7 +88,7 @@ const wxLogin = (loginRes: any) => {
         const { errMsg, code } = loginRes;
         if (errMsg.indexOf('ok') !== -1) {
             validLogin(code).then(data => {
-                uni.setStorageSync('toke', data.token); // 存储token
+                uni.setStorageSync('token', data.token); // 存储token
                 resolve(data);
             }).catch(err => {
                 console.log(err);
