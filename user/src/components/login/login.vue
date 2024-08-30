@@ -1,23 +1,35 @@
 <template>
     <!-- 定义一个按钮，用于打开弹出层 -->
     <view class="container">
-        <button class="avatar-wrapper" open-type="chooseAvatar" @chooseavatar="onChooseAvatar"    :disabled="!isLoggedIn">
+        <button 
+            class="avatar-wrapper" 
+            open-type="chooseAvatar" 
+            @chooseavatar="onChooseAvatar" 
+            :disabled="!isLoggedIn"
+        >
             <image class="avatar" :src="avatarUrl"></image>
         </button> 
         <!-- 用户信息区域 -->
         <view class="user-info">
-            <text class="user-name">微信用户</text>
-            <text class="user-description">登录以获取更多服务</text>
+            <text class="user-name">{{ userName }}</text>
+            <text class=".user-description">{{ isLoggedIn ? '欢迎回来' : '登录获取更多详情' }}</text>
         </view>
-        <button @click="handleLoginAndGetProfile" class="btn-login">一键登录</button>
+        <button 
+            v-show="!isLoggedIn" 
+            @click="handleLoginAndGetProfile" 
+            class="btn-login"
+        >
+            一键登录
+        </button>
     </view>
-</template>
+</template><script setup lang="ts">
+import { ref, onMounted } from 'vue';
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import { onMounted } from 'vue'
-const isLoggedIn = ref(false) // 添加状态变量
-const avatarUrl = ref('../../static/0.png') // 默认头像地址
+const isLoggedIn = ref(false); // 登录状态变量
+const avatarUrl = ref<string>('../../static/0.png'); // 默认头像地址
+const fixedAvatarUrl = ref<string>(''); // 用于存储微信头像 URL
+const userName = ref<string>('用户'); // 默认用户名
+
 interface TokenData {
     token: string;
 }
@@ -30,7 +42,16 @@ interface ApiResponse {
 const onChooseAvatar = (event: { detail: { avatarUrl: any; }; }) => {
     const { avatarUrl: newAvatarUrl } = event.detail;
     if (newAvatarUrl) {
-        avatarUrl.value = newAvatarUrl; // 更新头像URL
+        avatarUrl.value = newAvatarUrl // 更新头像URL
+        fixedAvatarUrl.value = newAvatarUrl;
+        // 更新本地存储
+        const userProfile = uni.getStorageSync('userProfile');
+        if (userProfile) {
+            uni.setStorageSync('userProfile', {
+                ...userProfile,
+                avatarUrl: newAvatarUrl
+            });
+        }
     }
 }
 
@@ -48,9 +69,7 @@ const validLogin = (code: string) => {
             },
             success: (res) => {
                 if (res.statusCode === 200) {
-                    // 断言 res.data 为 ApiResponse 类型
                     const response = res.data as ApiResponse;
-                    // 提取 token
                     const token = response.data.token;
                     resolve({ token });
                 } else {
@@ -58,30 +77,31 @@ const validLogin = (code: string) => {
                 }
             },
             fail: (err) => {
-                reject(err)
+                reject(err);
             }
         });
     });
 }
+
 const wxLogin = (loginRes: any) => {
     return new Promise((resolve, reject) => {
         const { errMsg, code } = loginRes;
         if (errMsg.indexOf('ok') !== -1) {
             validLogin(code).then(data => {
-                resolve(data)
-                uni.setStorageSync('token',data.token)
+                uni.setStorageSync('toke', data.token); // 存储token
+                resolve(data);
             }).catch(err => {
-                console.log(err)
+                console.log(err);
                 reject(err);
-            })
+            });
         } else {
             uni.showToast({
                 title: 'wx.login出错,请退出重新进入',
                 duration: 2000
-            })
+            });
             reject(new Error('wx.login failed'));
         }
-    })
+    });
 }
 
 //获取登录code
@@ -89,43 +109,53 @@ const login = () => {
     return new Promise((resolve, reject) => {
         uni.login({
             success: res => {
-                resolve(res)
+                resolve(res);
             },
             fail: err => {
-                console.log(err)
-                reject(err)
+                console.log(err);
+                reject(err);
             }
         });
     });
 }
 
 const handleLogin = async () => {
-    uni.showLoading({ title: '正在登录中...' }) // 显示加载提示
+    uni.showLoading({ title: '正在登录中...' });
     try {
-        const loginRes = await login() // 返回登录的Promise
+        const loginRes = await login();
         console.log(loginRes);
         await wxLogin(loginRes);
-        console.log('用户已成功登录')
+        console.log('用户已成功登录');
+        // 从服务器获取用户信息
+        const userProfile = await getUserProfile();
+        // 存储用户信息
+        uni.setStorageSync('userProfile', {
+            avatarUrl: avatarUrl.value,
+            userName: userProfile
+        });
+        isLoggedIn.value = true;
     } catch (err) {
-        console.error('登录失败:', err)
+        console.error('登录失败:', err);
     } finally {
-        uni.hideLoading() // 隐藏加载提示
+        uni.hideLoading();
     }
 }
 
 // 获取用户信息
-const getUserProfile = () => {
+const getUserProfile = (): Promise<string> => {
     return new Promise((resolve, reject) => {
-        uni.getUserProfile({
-            desc: '用户登录',
-            success: (info_res) => {
-            console.log('用户信息',info_res)
-                resolve(info_res)
-                console.log('用户信息'+info_res)
+        uni.getUserInfo({
+            success: function(res) {
+                const { nickName, avatarUrl: userAvatarUrl } = res.userInfo;
+                if (typeof nickName === 'string') {
+                    avatarUrl.value = userAvatarUrl || avatarUrl.value; // 更新头像URL
+                    resolve(nickName); // 返回用户名
+                } else {
+                    reject(new Error('获取用户昵称失败'));
+                }
             },
-            fail: err => {
-                reject(err)
-                console.log(err)
+            fail: function(err) {
+                reject(err);
             }
         });
     });
@@ -133,69 +163,61 @@ const getUserProfile = () => {
 
 const handleLoginAndGetProfile = () => {
     handleLogin().then(() => {
-        isLoggedIn.value = true
-        const userLoginToken = uni.getStorageSync('token')
-        if(userLoginToken){
-        getUserProfile()// 登录成功后再获取用户信息
-        console.log(userLoginToken)
-    }
+        if (isLoggedIn.value) {
+            getUserProfile().then((nickName: string) => {
+                // 更新用户信息显示
+                userName.value = nickName;
+            }).catch(err => {
+                console.error('获取用户信息失败:', err);
+            });
+        }
     }).catch(err => {
-        console.log('登录成功，可以修改头像')
+        console.error('处理登录和获取用户信息失败:', err);
     });
 }
 
 // 检测用户的登录状态
 const checkUserAuth = () => {
     return new Promise((resolve, reject) => {
-        // 用户登录的token
-        const userLoginToken = uni.getStorageSync('token')
-        const returnRes = {
-            code: 0,
-            status: '',
-            message: ''
-        };
-        if(userLoginToken)
-        return
-        if (!userLoginToken) {
-            returnRes.code = userLoginToken
-            returnRes.message = '未获取到登录状态码'
-            reject(returnRes)
+        const userLoginToken = uni.getStorageSync('token');
+        if (userLoginToken) {
+            isLoggedIn.value = true;
+            const storedProfile = uni.getStorageSync('userProfile');
+            if (storedProfile) {
+                avatarUrl.value = storedProfile.avatarUrl;
+                userName.value = storedProfile.userName;
+            }
+            resolve(userLoginToken);
         } else {
-            // 如果未登录，跳转到登录页面
             uni.showModal({
                 title: '提示',
                 content: '您尚未登录，是否登录？',
                 success: function(res) {
-                    returnRes.code = userLoginToken
-                    returnRes.status = '未登录'
                     if (res.confirm) {
                         uni.navigateTo({
                             url: 'pages/myth/myth',
                         });
                     }
-                    resolve(returnRes)
                 }
             });
         }
     });
 }
+
 onMounted(async () => {
     try {
-        await checkUserAuth()
-        // 用户已登录，执行其他操作
+        await checkUserAuth(); // 页面加载时检查用户是否已登录
     } catch (error) {
-        // 用户未登录，重定向到登录页面
         uni.navigateTo({
             url: '/pages/myth/myth'
         });
     }
-})
+});
 </script>
 
 <style>
 .container {
     position: relative;
-    margin-top: -45px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -203,33 +225,33 @@ onMounted(async () => {
     height: 90px;
     background-color: rgb(232, 246, 252);
     border-radius: 10px;
-    margin-left: 10px;
+    margin: 10px;
+}
+
+.avatar-wrapper {
+    position: absolute; /* 确保头像位置固定 */
+    height: 70px; 
+    width: 70px;  
+    border-radius: 50%; 
     margin-right: 10px;
+    background-color: #f4f8fb;
+    left: 10px; /* 调整头像的位置 */
 }
 
 .avatar {
     position: absolute;
     height: 70px;
     width: 70px;
-    border-radius: 50%; /* 圆形头像 */
-    object-fit: cover; /* 确保头像内容不变形 */
-    left: -2px;
-}
-
-.avatar-wrapper {
-    height: 70px; 
-    width: 70px;  
-    border-radius: 50%; 
-    margin-right: 10px;
-    background-color: #f4f8fb;
-    position: relative;
+    border-radius: 50%;
+    object-fit: cover;
+    left: -5px;
 }
 
 .user-info {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-left: 5px;
+    margin-left: 65px;
     margin-right: 50px;
 }
 
@@ -237,7 +259,6 @@ onMounted(async () => {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 5px;
-    margin-left: 0;
 }
 
 .user-description {
@@ -246,9 +267,12 @@ onMounted(async () => {
 }
 
 .btn-login {
-    width: 110px;
+    position: absolute; /* 确保登录按钮位置固定 */
+    bottom: 30px;
+    right: 10px;
+    width: 100px;
     height: 30px;
-    padding: 10px 10px;
+    padding: 10px;
     background-color: #7fcbeb;
     color: white;
     border: none;
