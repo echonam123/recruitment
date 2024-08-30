@@ -34,7 +34,7 @@ import { ref } from 'vue'
 import { onPullDownRefresh } from '@dcloudio/uni-app';
 // 阶段信息
 // 测试用的初识信息
-	let list = ref([
+	let list = ref<any>([
   {
 			"title": '报名',
 			"status":'',
@@ -109,10 +109,7 @@ async function getStage() {
 		try {
 			//查找所有的阶段信息
 			let res = await http<stage[]>({
-				url: '/listAllStage',
-				header: {
-					'Authorization':uni.getStorageSync('token')
-				}
+				url: '/listAllStage'
 			})
 			//清空list数组，将阶段信息放入list数组中
 			list.value = ref([])
@@ -120,24 +117,21 @@ async function getStage() {
 				list.value.push({
 					'title': ele.stageName,
 					'status': '',
-					'desc':`${ele.startTime} - ${ele.endTime}`
+					'desc': `${ele.startTime} - ${ele.endTime}`
 				})
 			})
 			//加入最后一个阶段
 			list.value.push({
 				'title': 'CAT',
 				'status': '',
-				'desc':''
+				'desc': ''
 			})
 			//获取用户信息
 			let r = await http<userInfo>({
-				url: '/user/user',
-				header: {
-					'Authorization':uni.getStorageSync('token')
-				}
+				url: '/user/user'
 			})
 			let isOut = r.out
-			let stageName = r.stageName 
+			let stageName = r.stageName
 			//更改当前阶段的信息
 			list.value.forEach((ele) => {
 				if (ele.title == stageName) {
@@ -155,7 +149,7 @@ async function getStage() {
 				}
 			})
 			//修改激活状态索引
-			list.value.forEach((ele,index) => {
+			list.value.forEach((ele, index) => {
 				if (ele.status == '正在进行中') {
 					activeIndex.value = index
 				}
@@ -169,9 +163,6 @@ async function getStage() {
 			console.log('出错了');
 			console.log(err);
 		}
-} else {
-		//前往登录界面
-	
 	}
 }
 // 阶段请求函数

@@ -38,7 +38,7 @@ const onChooseAvatar = (event: { detail: { avatarUrl: any; }; }) => {
 const validLogin = (code: string) => {
     return new Promise<TokenData>((resolve, reject) => {
         uni.request({
-            url: 'https://39.106.69.15:8081/user/login',
+            url: '/user/login',
             method: 'POST',
             header: {
                 'Content-Type': 'application/json'
@@ -84,6 +84,7 @@ const wxLogin = (loginRes: any) => {
     })
 }
 
+//获取登录code
 const login = () => {
     return new Promise((resolve, reject) => {
         uni.login({
@@ -118,6 +119,7 @@ const getUserProfile = () => {
         uni.getUserProfile({
             desc: '用户登录',
             success: (info_res) => {
+            console.log('用户信息',info_res)
                 resolve(info_res)
                 console.log('用户信息'+info_res)
             },
@@ -141,6 +143,7 @@ const handleLoginAndGetProfile = () => {
         console.log('登录成功，可以修改头像')
     });
 }
+
 // 检测用户的登录状态
 const checkUserAuth = () => {
     return new Promise((resolve, reject) => {

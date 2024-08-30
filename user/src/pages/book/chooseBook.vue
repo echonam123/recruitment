@@ -10,8 +10,8 @@
   <script lang="ts" setup>
   function turn(book:string){
     uni.navigateTo({
-	url: 'book'
-});
+      url: 'book'
+    });
   }
   </script>
   
