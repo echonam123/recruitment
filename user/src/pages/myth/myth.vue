@@ -12,8 +12,7 @@
       @click="onClick()"
     ></uni-list-item>
     <uni-list-item
-      title="预约
-      "
+      title="预约"
       link
       to="/pages/book/chooseBook"
       @click="onClick()"
