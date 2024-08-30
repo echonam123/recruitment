@@ -31,40 +31,44 @@
 <script setup lang="ts">
 import {http} from '@/utils/http'
 import { ref } from 'vue'
-import { onPullDownRefresh } from '@dcloudio/uni-app';
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app';
+
+//页面显示
+onShow(() => {
+	getStage()
+})
 // 阶段信息
-// 测试用的初识信息
-	let list = ref<any>([
-  {
-			"title": '报名',
-			"status":'',
-			"desc":''
-  },
-  {
-		"title": '面试',
+let list = ref<any>([
+{
+		"title": '报名',
 		"status":'',
 		"desc":''
-  },
-  {
-		"title": '一轮考核',
-		"status":'',
-		"desc":'7月5日 - 7月10日'
-  },
-  {
-		"title": '二轮考核',
-		"status":'',
-		"desc":''
-  },
-  {
-		"title": 'CAT',
-		"status":'',
-		"desc":''
-  }
-	])
+},
+{
+	"title": '面试',
+	"status":'',
+	"desc":''
+},
+{
+	"title": '一轮考核',
+	"status":'',
+	"desc":''
+},
+{
+	"title": '二轮考核',
+	"status":'',
+	"desc":''
+},
+{
+	"title": 'CAT',
+	"status":'',
+	"desc":''
+}
+])
 
 //获取阶段信息
 let isPull = ref(false)
-let activeIndex = ref(2)
+let activeIndex = ref(0)
 // 修改完成阶段的信息
 function editStatus() {
 	for (let i = 0; i < list.value.length; i++){
@@ -77,9 +81,8 @@ function editStatus() {
 				list.value[i].status = '未开始'
 		}
 	}
+	console.log(list.value)
 }
-// 测试用的
-editStatus()
 
 //获取阶段信息
 interface userInfo{
@@ -104,69 +107,72 @@ interface stage{
 	endTime: string
 }
 async function getStage() {
-	if (uni.getStorageSync('token')) {
-		// 发送请求查询进度
-		try {
-			//查找所有的阶段信息
-			let res = await http<stage[]>({
-				url: '/listAllStage'
-			})
-			//清空list数组，将阶段信息放入list数组中
-			list.value = ref([])
-			res.forEach(ele => {
-				list.value.push({
-					'title': ele.stageName,
-					'status': '',
-					'desc': `${ele.startTime} - ${ele.endTime}`
-				})
-			})
-			//加入最后一个阶段
+	// 发送请求查询进度
+	try {
+		//查找所有的阶段信息
+		let res = await http<stage[]>({
+			url: '/listStage'
+		})
+		//清空list数组，将阶段信息放入list数组中
+		list.value = []
+		res.forEach(ele => {
+			let start = ele.startTime.split('T')[0]
+			let end = ele.endTime.split('T')[0]
 			list.value.push({
-				'title': 'CAT',
+				'title': ele.stageName,
 				'status': '',
-				'desc': ''
+				'desc': `${start} ~ ${end}`
 			})
-			//获取用户信息
-			let r = await http<userInfo>({
-				url: '/user/user'
-			})
+		})
+		//加入最后一个阶段
+		list.value.push({
+			'title': 'CAT',
+			'status': '',
+			'desc': ''
+		})
+		//获取用户信息
+		let r = await http<userInfo>({
+			url: '/user/user'
+		})
+		//看是否有报名，没有报名则没有报名信息
+		let stageName = '报名'
+		let isOut = false
+		if (r) {
 			let isOut = r.out
-			let stageName = r.stageName
-			//更改当前阶段的信息
-			list.value.forEach((ele) => {
-				if (ele.title == stageName) {
-					//判断是否被淘汰
-					if (isOut) {
-						ele.status = '×'
-						ele.desc = '很遗憾没有通过这次考核，但是并不能代表你的全部，加油！'
-					} else {
-						ele.status = '正在进行中'
-						//判断是否完成所有阶段
-						if (stageName == 'CAT') {
-							ele.desc = '终于等到你，欢迎来到CAT大家庭~'
-						}
+			stageName = r.stageName
+		}
+		//更改当前阶段的信息
+		list.value.forEach((ele) => {
+			if (ele.title == stageName) {
+				//判断是否被淘汰
+				if (isOut) {
+					ele.status = '×'
+					ele.desc = '很遗憾没有通过这次考核，但是并不能代表你的全部，加油！'
+				} else {
+					ele.status = '正在进行中'
+					//判断是否完成所有阶段
+					if (stageName == 'CAT') {
+						ele.desc = '终于等到你，欢迎来到CAT大家庭~'
 					}
 				}
-			})
-			//修改激活状态索引
-			list.value.forEach((ele, index) => {
-				if (ele.status == '正在进行中') {
-					activeIndex.value = index
-				}
-			})
-			editStatus()
-			if (isPull.value) {
-				uni.stopPullDownRefresh()
-				isPull.value = false
 			}
-		} catch (err) {
-			console.log('出错了');
-			console.log(err);
+		})
+		//修改激活状态索引
+		list.value.forEach((ele, index) => {
+			if (ele.status == '正在进行中') {
+				activeIndex.value = index
+			}
+		})
+		editStatus()
+		if (isPull.value) {
+			uni.stopPullDownRefresh()
+			isPull.value = false
 		}
+	} catch (err) {
+		console.log('出错了')
+		console.log(err)
 	}
 }
-// 阶段请求函数
-getStage()
 
 //上拉刷新功能
 onPullDownRefresh(() => {

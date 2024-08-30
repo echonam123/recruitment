@@ -61,6 +61,7 @@
     "@dcloudio/uni-ui": "^1.5.6",
     "@uni-helper/uni-app-types": "^1.0.0-alpha.3",
     "@uni-helper/uni-ui-types": "^1.0.0-alpha.3",
+    "dayjs": "^1.11.13",
     "less": "^4.2.0",
     "less-loader": "^12.2.0",
     "vue": "^3.4.21",

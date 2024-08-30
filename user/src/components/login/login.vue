@@ -88,7 +88,7 @@ const wxLogin = (loginRes: any) => {
         const { errMsg, code } = loginRes;
         if (errMsg.indexOf('ok') !== -1) {
             validLogin(code).then(data => {
-                uni.setStorageSync('toke', data.token); // 存储token
+                uni.setStorageSync('token', data.token); // 存储token
                 resolve(data);
             }).catch(err => {
                 console.log(err);
@@ -194,8 +194,8 @@ const checkUserAuth = () => {
                 content: '您尚未登录，是否登录？',
                 success: function(res) {
                     if (res.confirm) {
-                        uni.navigateTo({
-                            url: 'pages/myth/myth',
+                        uni.switchTab({
+                            url: '/pages/myth/myth',
                         });
                     }
                 }
