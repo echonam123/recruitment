@@ -12,7 +12,7 @@
         <!-- 用户信息区域 -->
         <view class="user-info">
             <text class="user-name">{{ userName }}</text>
-            <text class=".user-description">{{ isLoggedIn ? '欢迎回来' : '登录获取更多详情' }}</text>
+            <text class=".user-description">{{ isLoggedIn ? '欢迎来到CAT' : '登录获取更多详情' }}</text>
         </view>
         <button 
             v-show="!isLoggedIn" 
@@ -88,7 +88,7 @@ const wxLogin = (loginRes: any) => {
         const { errMsg, code } = loginRes;
         if (errMsg.indexOf('ok') !== -1) {
             validLogin(code).then(data => {
-                uni.setStorageSync('tokensss', data.token); // 存储token
+                uni.setStorageSync('token', data.token); // 存储token
                 resolve(data);
             }).catch(err => {
                 console.log(err);

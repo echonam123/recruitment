@@ -22,7 +22,7 @@
             @click="reserveSlot(index)"
           >
             <text>{{ slot.time }}</text>
-            <text>{{ slot.currentBookings }}/{{ slot.maxBookings }}</text>
+            <text>{{ slot.remaining }}/{{ slot.capacity }}</text>
           </view>
         </view>
       </view>
@@ -31,16 +31,12 @@
 </template>
 
 <script>
+import { http } from '@/utils/http'; // 导入封装的 http 方法
+
 export default {
   data() {
     return {
-      timeSlots: [
-        { time: "09:00 - 10:00", currentBookings: 0, maxBookings: 2 },
-        { time: "10:00 - 11:00", currentBookings: 0, maxBookings: 2 },
-        { time: "11:00 - 12:00", currentBookings: 0, maxBookings: 2 },
-        { time: "14:00 - 15:00", currentBookings: 0, maxBookings: 2 },
-        { time: "15:00 - 16:00", currentBookings: 0, maxBookings: 2 },
-      ],
+      timeSlots: [], // 动态请求的时间段
       showCalendar: false,
       info: {
         lunar: true,
@@ -48,11 +44,7 @@ export default {
         insert: false,
         selected: [],
       },
-      availableDates: [
-        getDate(new Date(), 2).fullDate, // 当前日期加2天
-        getDate(new Date(), 4).fullDate, // 当前日期加4天
-        getDate(new Date(), 6).fullDate, // 当前日期加6天
-      ],
+      availableDates: [], // 动态请求的可预约日期
       selectedDate: "",
       selectedSlotIndex: null, // 当前选中的时间段索引
       bookedSlots: {}, // 用于跟踪每一天的已预约时间段
@@ -63,6 +55,17 @@ export default {
     this.$nextTick(() => {
       this.showCalendar = true;
     });
+    
+    this.fetchdetails()
+      .then(details => {
+      console.log(details)
+        const { direction, stageid } = details;
+        this.fetchAppointmentData(direction, stageid);
+      })
+      .catch(error => {
+        console.error('获取阶段和方向失败:', error);
+      });
+    
     this.info.date = getDate(new Date(), -30).fullDate;
     this.info.startDate = getDate(new Date(), -60).fullDate;
     this.info.endDate = getDate(new Date(), 30).fullDate;
@@ -78,6 +81,69 @@ export default {
     ];
   },
   methods: {
+    //获取阶段和方向id
+    fetchdetails() {
+      return http({
+        url: '/user/user',
+        method: 'GET'
+      })
+      .then(response => {
+        return {
+          direction: response.data.direction,
+          stageid: response.data.stageid
+        };
+      })
+      .catch(error => {
+        console.log(error);
+        throw error; // 继续抛出错误以便调用者处理
+      });
+    },
+    //获取预约时间
+    fetchAppointmentData(direction, stageid) {
+      return http({
+        url: '/interview/get',
+        data: {
+          stageid: stageid,
+          direction: direction
+        },
+        method: 'GET'
+      })
+      .then(response => {
+        console.log(response)
+        const slots = response.data; // 获取的时间段数据
+        const timeSlots = [];
+        const availableDates = new Set(); // 使用 Set 以避免重复日期
+        
+        // 处理时间段数据
+        slots.forEach(slot => {
+          const startDate = new Date(slot.startTime);
+          const formattedDate = getDate(startDate).fullDate;
+          
+          // 添加到 availableDates
+          availableDates.add(formattedDate);
+
+          // 添加到 timeSlots
+          timeSlots.push({
+            timeId: slot.timeId,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            time: `${getTimeFormatted(startDate)} - ${getTimeFormatted(new Date(slot.endTime))}`,
+            capacity: slot.capacity,
+            remaining: slot.remaining,
+          });
+        });
+        
+        // 更新组件数据
+        this.timeSlots = timeSlots;
+        this.availableDates = Array.from(availableDates);
+
+        console.log('Available Dates:', this.availableDates);
+        console.log('Time Slots:', this.timeSlots);
+      })
+      .catch(error => {
+        console.error('获取预约数据失败:', error);
+      });
+    },
     handleDateChange(e) {
       const selectedDate = e.fulldate;
       if (this.availableDates.includes(selectedDate)) {
@@ -113,14 +179,14 @@ export default {
       if (existingSlotIndex !== undefined && existingSlotIndex !== null) {
         const previousSlot = this.timeSlots[existingSlotIndex];
         if (previousSlot) {
-          previousSlot.currentBookings--;
+          previousSlot.remaining++;
         }
         this.bookedSlots[this.selectedDate] = null;
       }
 
       // 更新预约
-      if (slot.currentBookings < slot.maxBookings) {
-        slot.currentBookings++;
+      if (slot.remaining > 0) {
+        slot.remaining--;
         this.bookedSlots[this.selectedDate] = index;
         uni.showToast({
           title: "时间段已选择",
@@ -137,15 +203,16 @@ export default {
 
     cancelReservation(index) {
       const slot = this.timeSlots[index];
-      slot.currentBookings--;
+      slot.remaining++;
       this.bookedSlots[this.selectedDate] = null;
       uni.showToast({
         title: "预约已取消",
         icon: "success",
       });
-    },
+    }
   },
 };
+
 function getDate(date, AddDayCount = 0) {
   if (!date) {
     date = new Date();
@@ -155,12 +222,12 @@ function getDate(date, AddDayCount = 0) {
   }
   const dd = new Date(date);
 
-  dd.setDate(dd.getDate() + AddDayCount); // 获取AddDayCount天后的日期
+  dd.setDate(dd.getDate() + AddDayCount); // 获取 AddDayCount 天后的日期
 
   const y = dd.getFullYear();
   const m =
-    dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1; // 获取当前月份的日期，不足10补0
-  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate(); // 获取当前几号，不足10补0
+    dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1; // 获取当前月份的日期，不足 10 补 0
+  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate(); // 获取当前几号，不足 10 补 0
   return {
     fullDate: y + "-" + m + "-" + d,
     year: y,
@@ -168,6 +235,12 @@ function getDate(date, AddDayCount = 0) {
     date: d,
     day: dd.getDay(),
   };
+}
+
+function getTimeFormatted(date) {
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
 }
 </script>
 
@@ -193,7 +266,7 @@ function getDate(date, AddDayCount = 0) {
 }
 
 .time-slots {
-  margin-top: 10px; /* 顶部增加间距 */
+  margin-top: 10px; 
 }
 
 .time-slot {
