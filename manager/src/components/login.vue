@@ -23,33 +23,38 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Index from './index.vue';
+import { ElMessageBox,ElMessage} from 'element-plus';
+
 import axios from 'axios';
+import { Login } from '../api/modules/login';
+
 const username = ref('');
 const password = ref('');
 const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
-const handleSubmit = () => {
-  axios.post('https://39.106.69.15:8081/admin/login', {
-    username: username.value,
-    password: password.value
-  })
-  .then(response => {
-    console.log(response)
-    if (response.data.code===200) {
-      // 登录成功
-      isLoggedIn.value = true;
-      // 重置输入框
-      username.value = '';
-      password.value = '';
-      localStorage.setItem('token', response.data.data.token)
-      console.log(response.data.data.token)
-    } else {
-      // 登录失败处理
-      console.error('登录失败:', response.data.message);
-    }
-  })
-  .catch(error => {
-    console.error('请求失败:', error);
-  });
+const handleSubmit = async() => {
+  try{
+    const response = await Login(username.value,password.value)
+    // 登录成功
+    isLoggedIn.value = true;
+    // 重置输入框
+    username.value = '';
+    password.value = '';
+    localStorage.setItem('token', response.data.data.token)
+    console.log(response.data.data.token)
+    ElMessageBox.alert('登录成功', '成功', {
+      confirmButtonText: '确定',
+      callback: () => {
+      },  
+    });
+  }catch(error){
+    // 捕获并处理错误
+    ElMessageBox.alert('请求失败，请重试。', '错误', {
+      confirmButtonText: '确定',
+      callback: () => {
+      },
+    });
+    console.error('Error:', error);
+  }
 };
 </script>
 
