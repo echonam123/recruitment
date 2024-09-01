@@ -12,7 +12,7 @@
         <!-- 用户信息区域 -->
         <view class="user-info">
             <text class="user-name">{{ userName }}</text>
-            <text class=".user-description">{{ isLoggedIn ? '欢迎回来' : '登录获取更多详情' }}</text>
+            <text class=".user-description">{{ isLoggedIn ? '欢迎来到CAT' : '登录获取更多详情' }}</text>
         </view>
         <button 
             v-show="!isLoggedIn" 
@@ -59,7 +59,7 @@ const onChooseAvatar = (event: { detail: { avatarUrl: any; }; }) => {
 const validLogin = (code: string) => {
     return new Promise<TokenData>((resolve, reject) => {
         uni.request({
-            url: '/user/login',
+            url: 'https://39.106.69.15:8081/user/login',
             method: 'POST',
             header: {
                 'Content-Type': 'application/json'
@@ -104,7 +104,6 @@ const wxLogin = (loginRes: any) => {
     });
 }
 
-//获取登录code
 const login = () => {
     return new Promise((resolve, reject) => {
         uni.login({
@@ -179,7 +178,7 @@ const handleLoginAndGetProfile = () => {
 // 检测用户的登录状态
 const checkUserAuth = () => {
     return new Promise((resolve, reject) => {
-        const userLoginToken = uni.getStorageSync('token');
+        const userLoginToken = uni.getStorageSync('tokensss');
         if (userLoginToken) {
             isLoggedIn.value = true;
             const storedProfile = uni.getStorageSync('userProfile');
@@ -188,30 +187,12 @@ const checkUserAuth = () => {
                 userName.value = storedProfile.userName;
             }
             resolve(userLoginToken);
-        } else {
-            uni.showModal({
-                title: '提示',
-                content: '您尚未登录，是否登录？',
-                success: function(res) {
-                    if (res.confirm) {
-                        uni.switchTab({
-                            url: '/pages/myth/myth',
-                        });
-                    }
-                }
-            });
-        }
+        } 
     });
 }
-
+//
 onMounted(async () => {
-    try {
-        await checkUserAuth(); // 页面加载时检查用户是否已登录
-    } catch (error) {
-        uni.navigateTo({
-            url: '/pages/myth/myth'
-        });
-    }
+    await checkUserAuth()
 });
 </script>
 
@@ -244,7 +225,7 @@ onMounted(async () => {
     width: 70px;
     border-radius: 50%;
     object-fit: cover;
-    left: -5px;
+    left: 0px;
 }
 
 .user-info {
