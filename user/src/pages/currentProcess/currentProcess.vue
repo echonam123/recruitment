@@ -138,7 +138,7 @@ async function getStage() {
 		let stageName = '报名'
 		let isOut = false
 		if (r) {
-			let isOut = r.out
+			isOut = r.out
 			stageName = r.stageName
 		}
 		//更改当前阶段的信息
