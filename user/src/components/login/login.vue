@@ -178,7 +178,7 @@ const handleLoginAndGetProfile = () => {
 // 检测用户的登录状态
 const checkUserAuth = () => {
     return new Promise((resolve, reject) => {
-        const userLoginToken = uni.getStorageSync('tokensss');
+        const userLoginToken = uni.getStorageSync('token');
         if (userLoginToken) {
             isLoggedIn.value = true;
             const storedProfile = uni.getStorageSync('userProfile');
