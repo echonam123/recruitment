@@ -38,13 +38,41 @@
     <el-table-column prop="direction" label="Direction" width="180" />
     <el-table-column prop="phone" label="Phone" width="180" />
     <el-table-column prop="introduction" label="Introduction" />
+    <el-table-column label="评价">
+      <template #default="scope">
+        <el-button type="primary" @click="openDialog(scope.row)">评价</el-button>
+      </template>
+    </el-table-column>
   </el-table>
+
+  <el-dialog v-model="dialogVisible" title="评价">
+    <div>
+      <el-rate v-model="currentRating"></el-rate>
+      <el-input
+        type="textarea"
+        v-model="currentComment"
+        placeholder="请输入评价内容"
+        rows="4"
+      ></el-input>
+    </div>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitRating">提交</el-button>
+    </span>
+  </el-dialog>
 </template>
 <script lang="ts" setup>
+import { ElMessageBox,ElDialog } from 'element-plus';
 import { ref, computed } from 'vue';
 const selectedFilter = ref('');
 const secondaryFilter = ref('');
 const showAllFilter = ref(false);
+
+const dialogVisible = ref(false);
+const currentRating = ref(0);
+const currentComment = ref('');
+const currentUser = ref<any>(null);
+
 const options = [
   { value: '学院', label: '学院' },
   { value: '专业', label: '专业' },
@@ -176,4 +204,21 @@ const filteredTableData = computed(() => {
   }
   return data;
 });
+const openDialog = (user: any) => {
+  currentUser.value = user;
+  currentRating.value = 0;
+  currentComment.value = '';
+  dialogVisible.value = true;
+  console.log('click')
+};
+const submitRating = () => {
+  if (currentUser.value) {
+    // 这里可以执行保存评分和评价的逻辑，例如发送到后端
+    ElMessageBox.alert('rate sent')
+  }
+};
 </script>
+
+<style>
+
+</style>

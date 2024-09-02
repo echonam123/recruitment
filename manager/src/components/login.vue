@@ -30,7 +30,7 @@ import { Login } from '../api/modules/login';
 
 const username = ref('');
 const password = ref('');
-const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
+const isLoggedIn = ref(true); // 控制登录状态，初始值为 false
 const handleSubmit = async() => {
   try{
     const response = await Login(username.value,password.value)

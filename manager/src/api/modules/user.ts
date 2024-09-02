@@ -1,4 +1,4 @@
-//user接口
+// admin/user接口
 import {baseURL} from '../base'
 
 import {request} from '../base';
