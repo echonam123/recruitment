@@ -11,15 +11,11 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem("token"); 
     if(token){
     // 配置请求头
-      config.headers["Content-Type"] = "application/json;charset=UTF-8";
-      config.headers["token"] = 'Bearer'+ token;
-      console.log(token)
-    }
-    console.log(config)
-    
+    config.headers["Content-Type"] = "application/json;charset=UTF-8";
+    config.headers.Authorization= 'Bearer '+token}
     return config;
   },
-  (error) => {
+  (error: any) => {
     return Promise.reject(error);
   }
 );
@@ -29,15 +25,13 @@ axiosInstance.interceptors.response.use(
   (response:AxiosResponse) => {
     return response;
   },
-  (error) => {
+  (error: { response: any; }) => {
     const { response } = error;
     if (response) {
       // 请求已发出，但是不在2xx的范围
       showMessage(response.status); // 传入响应码，匹配响应码对应信息
       return Promise.reject(response.data);
     } else {
-      console.log(error)
-      
       alert("网络连接异常,请稍后再试!")
     }
   }
@@ -46,9 +40,11 @@ export function request(data: any) {
   return new Promise((resolve, reject) => {
    axiosInstance(data)
       .then((res: any) => {
+        showMessage(res.status)
         resolve(res.data);
       })
       .catch((err: any) => {
+        showMessage(err.status)
         reject(err.data);
       });
   });
