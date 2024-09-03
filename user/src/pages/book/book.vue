@@ -1,7 +1,6 @@
 <template>
   <h2 class="example-info">面试预约</h2>
   <view class="calendar-content" v-if="showCalendar">
-    <!-- 插入模式 -->
     <uni-calendar
       :selected="info.selected"
       :showMonth="false"
@@ -15,13 +14,13 @@
       <view class="button-text">
         <view class="time-slots">
           <view
-            v-for="(slot, index) in timeSlots"
+            v-for="(slot, index) in filteredTimeSlots"
             :key="index"
             class="time-slot"
             :class="{ selected: selectedSlotIndex === index }"
             @click="reserveSlot(index)"
           >
-            <text>{{ slot.time }}</text>
+            <text>{{ slot.startTime }} - {{ slot.endTime }}</text>
             <text>{{ slot.remaining }}/{{ slot.capacity }}</text>
           </view>
         </view>
@@ -29,7 +28,6 @@
     </uni-popup>
   </view>
 </template>
-
 <script>
 import { http } from '@/utils/http'; // 导入封装的 http 方法
 
@@ -37,6 +35,7 @@ export default {
   data() {
     return {
       timeSlots: [], // 动态请求的时间段
+      filteredTimeSlots: [], // 过滤后的时间段
       showCalendar: false,
       info: {
         lunar: true,
@@ -55,114 +54,96 @@ export default {
     this.$nextTick(() => {
       this.showCalendar = true;
     });
-    
-    this.fetchdetails()
+
+    this.fetchDetails()
       .then(details => {
-      console.log(details)
-        const { direction, stageid } = details;
-        this.fetchAppointmentData(direction, stageid);
+        const { direction, stageId } = details;
+        this.fetchAppointmentData(direction, stageId);
       })
       .catch(error => {
         console.error('获取阶段和方向失败:', error);
       });
-    
+
     this.info.date = getDate(new Date(), -30).fullDate;
     this.info.startDate = getDate(new Date(), -60).fullDate;
     this.info.endDate = getDate(new Date(), 30).fullDate;
-    this.info.selected = [
-      {
-        date: getDate(new Date(), 0).fullDate,
-        info: "预约",
-      },
-      {
-        date: getDate(new Date(), 2).fullDate,
-        info: "预约",
-      },
-    ];
+    this.info.selected = [];
   },
   methods: {
-    //获取阶段和方向id
-    fetchdetails() {
+    // 获取阶段和方向id
+    fetchDetails() {
       return http({
         url: '/user/user',
         method: 'GET'
       })
       .then(response => {
         return {
-          direction: response.data.direction,
-          stageid: response.data.stageid
+          direction: response.direction,
+          stageId: response.stageId
         };
       })
       .catch(error => {
-        console.log(error);
-        throw error; // 继续抛出错误以便调用者处理
+        console.error('获取阶段和方向失败:', error);
+        throw error;
       });
     },
-    //获取预约时间
-    fetchAppointmentData(direction, stageid) {
+    // 获取预约时间,预约容量和剩余预约席位
+    fetchAppointmentData(direction, stageId) {
       return http({
         url: '/interview/get',
         data: {
-          stageid: stageid,
+          stageId: stageId,
           direction: direction
         },
         method: 'GET'
       })
       .then(response => {
-        console.log(response)
-        const slots = response.data; // 获取的时间段数据
-        const timeSlots = [];
-        const availableDates = new Set(); // 使用 Set 以避免重复日期
-        
-        // 处理时间段数据
-        slots.forEach(slot => {
-          const startDate = new Date(slot.startTime);
-          const formattedDate = getDate(startDate).fullDate;
-          
-          // 添加到 availableDates
-          availableDates.add(formattedDate);
-
-          // 添加到 timeSlots
-          timeSlots.push({
-            timeId: slot.timeId,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-            time: `${getTimeFormatted(startDate)} - ${getTimeFormatted(new Date(slot.endTime))}`,
-            capacity: slot.capacity,
-            remaining: slot.remaining,
-          });
-        });
-        
-        // 更新组件数据
-        this.timeSlots = timeSlots;
-        this.availableDates = Array.from(availableDates);
-
-        console.log('Available Dates:', this.availableDates);
-        console.log('Time Slots:', this.timeSlots);
+        console.log(response)// 假设服务器返回的数据包含 timeSlots
+        this.timeSlots = response;
+console.log(this.timeSlots)
+const uniqueDates = [...new Set(this.timeSlots.map(slot => slot.startTime.split('T')[0]))];
+console.log(uniqueDates)
+this.availableDates = uniqueDates;
+this.info.selected = uniqueDates.map(date => ({
+      date: date,
+      info: '可预约'
+    }))
+console.log('更新后的 info.selected:', this.info.selected);
       })
       .catch(error => {
         console.error('获取预约数据失败:', error);
       });
     },
     handleDateChange(e) {
-      const selectedDate = e.fulldate;
-      if (this.availableDates.includes(selectedDate)) {
-        this.selectedDate = selectedDate;
-        this.$refs.popup.open("bottom");
-      } else {
-        uni.showToast({
-          title: "此日期不可预约",
-          icon: "none",
-        });
-      }
-    },
+  const selectedDate = e.fulldate;
+  if (this.availableDates.includes(selectedDate)) {
+    this.selectedDate = selectedDate;
+
+    // 过滤出选中日期的时间段
+    this.filteredTimeSlots = this.timeSlots.filter(slot => slot.startTime.split('T')[0] === selectedDate);
+
+    // 更新 this.info.selected，确保只更新当前选择的日期
+    this.info.selected = this.availableDates.map(date => ({
+      date: date,
+      info: date === selectedDate ? '可预约' : '不可预约'
+    }));
+
+    // 打开弹出层展示时间段
+    this.$refs.popup.open("bottom");
+  } else {
+    uni.showToast({
+      title: "此日期不可预约",
+      icon: "none",
+    });
+  }
+},
     handleMonthSwitch(e) {
       console.log("monthSwitch 返回:", e);
     },
     reserveSlot(index) {
-      const slot = this.timeSlots[index];
+      const slot = this.filteredTimeSlots[index];
       if (!slot) {
-        console.error("Invalid slot index:", index);
+        console.error("无效的时间段索引:", index);
         return;
       }
 
@@ -177,7 +158,7 @@ export default {
 
       // 取消之前的预约
       if (existingSlotIndex !== undefined && existingSlotIndex !== null) {
-        const previousSlot = this.timeSlots[existingSlotIndex];
+        const previousSlot = this.filteredTimeSlots[existingSlotIndex];
         if (previousSlot) {
           previousSlot.remaining++;
         }
@@ -200,9 +181,8 @@ export default {
         });
       }
     },
-
     cancelReservation(index) {
-      const slot = this.timeSlots[index];
+      const slot = this.filteredTimeSlots[index];
       slot.remaining++;
       this.bookedSlots[this.selectedDate] = null;
       uni.showToast({
@@ -235,12 +215,6 @@ function getDate(date, AddDayCount = 0) {
     date: d,
     day: dd.getDay(),
   };
-}
-
-function getTimeFormatted(date) {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${hours}:${minutes}`;
 }
 </script>
 

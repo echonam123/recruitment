@@ -51,7 +51,7 @@ export const http = <T>(options:UniApp.RequestOptions) => {
 }
 
 //拦截器
-const baseUrl = 'https://39.106.69.15:8081'
+const baseUrl = 'http://39.106.69.15:8081'
 const httpInterceptor = {
   //拦截前触发
   invoke(options) {
