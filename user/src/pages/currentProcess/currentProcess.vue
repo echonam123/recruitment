@@ -111,7 +111,7 @@ async function getStage() {
 	try {
 		//查找所有的阶段信息
 		let res = await http<stage[]>({
-			url: '/listStage'
+			url: '/stage/listStage'
 		})
 		//清空list数组，将阶段信息放入list数组中
 		list.value = []

@@ -21,36 +21,60 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Index from './index.vue';
-import axios from 'axios';
+import axiosInstance from '../untils/request'
+// 使用 ref 使变量具备响应性
 const username = ref('');
 const password = ref('');
-const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
+const isLoggedIn = ref(false);
+
+// 读取 token 和检查登录状态
+const checkLoginStatus = () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    isLoggedIn.value = true; // 如果 token 存在，则认为已经登录
+  } else {
+    isLoggedIn.value = false; // 否则未登录
+  }
+};
+
+// 处理表单提交
 const handleSubmit = () => {
-  axios.post('https://39.106.69.15:8081/admin/login', {
+  if (!username.value || !password.value) {
+    console.error('请填写所有字段');
+    return;
+  }
+
+  // 登录请求
+  axiosInstance.post('admin/login', {
     username: username.value,
     password: password.value
   })
-  .then(response => {
-    console.log(response)
-    if (response.data.code===200) {
+  .then((response: { data: { code: number; data: { token: string; }; message: any; }; }) => {
+    console.log(response);
+    if (response.data.code === 200) {
       // 登录成功
       isLoggedIn.value = true;
       // 重置输入框
       username.value = '';
       password.value = '';
-      localStorage.setItem('token', response.data.data.token)
-      console.log(response.data.data.token)
+      localStorage.setItem('token', response.data.data.token);
+      console.log(response.data.data.token);
     } else {
       // 登录失败处理
       console.error('登录失败:', response.data.message);
     }
   })
-  .catch(error => {
+  .catch((error: any) => {
     console.error('请求失败:', error);
   });
 };
+
+// 页面加载时检查登录状态
+onMounted(() => {
+  checkLoginStatus();
+});
 </script>
 
 <style scoped>

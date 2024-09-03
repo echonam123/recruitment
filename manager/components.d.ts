@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Add: typeof import('./src/components/add.vue')['default']
     Check: typeof import('./src/components/check.vue')['default']
     Components: typeof import('./src/components/index.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
@@ -19,7 +18,6 @@ declare module 'vue' {
     ElDivider: typeof import('element-plus/es')['ElDivider']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
-    ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElMain: typeof import('element-plus/es')['ElMain']
@@ -36,5 +34,6 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     Interview: typeof import('./src/components/interview.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']
+    Stage: typeof import('./src/components/stage.vue')['default']
   }
 }
