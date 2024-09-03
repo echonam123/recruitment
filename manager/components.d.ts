@@ -27,6 +27,7 @@ declare module 'vue' {
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElMenuItemGroup: typeof import('element-plus/es')['ElMenuItemGroup']
     ElOption: typeof import('element-plus/es')['ElOption']
+    ElPopover: typeof import('element-plus/es')['ElPopover']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
     ElSelect: typeof import('element-plus/es')['ElSelect']
@@ -36,5 +37,6 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     Interview: typeof import('./src/components/interview.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']
+    Stage: typeof import('./src/components/stage.vue')['default']
   }
 }

@@ -21,80 +21,110 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import Index from './index.vue';
-import axios from 'axios';
-const username = ref('');
-const password = ref('');
-const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
-const handleSubmit = () => {
-  axios.post('https://39.106.69.15:8081/admin/login', {
-    username: username.value,
-    password: password.value
-  })
-  .then(response => {
-    console.log(response)
-    if (response.data.code===200) {
-      // 登录成功
-      isLoggedIn.value = true;
-      // 重置输入框
-      username.value = '';
-      password.value = '';
-      localStorage.setItem('token', response.data.data.token)
-      console.log(response.data.data.token)
+  import { ref, onMounted } from "vue";
+  import Index from "./index.vue";
+  import axiosInstance from "../untils/request";
+  // 使用 ref 使变量具备响应性
+  const username = ref("");
+  const password = ref("");
+  const isLoggedIn = ref(false);
+
+  // 读取 token 和检查登录状态
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      isLoggedIn.value = true; // 如果 token 存在，则认为已经登录
     } else {
-      // 登录失败处理
-      console.error('登录失败:', response.data.message);
+      isLoggedIn.value = false; // 否则未登录
     }
-  })
-  .catch(error => {
-    console.error('请求失败:', error);
+  };
+
+  // 处理表单提交
+  const handleSubmit = () => {
+    if (!username.value || !password.value) {
+      console.error("请填写所有字段");
+      return;
+    }
+
+    // 登录请求
+    axiosInstance
+      .post("admin/login", {
+        username: username.value,
+        password: password.value,
+      })
+      .then(
+        (response: {
+          data: { code: number; data: { token: string }; message: any };
+        }) => {
+          console.log(response);
+          if (response.data.code === 200) {
+            // 登录成功
+            isLoggedIn.value = true;
+            // 重置输入框
+            username.value = "";
+            password.value = "";
+            console.log(response.data.data.token)
+            localStorage.setItem("token", response.data.data.token);
+            console.log(response.data.data.token);
+          } else {
+            // 登录失败处理
+            console.error("登录失败:", response.data.message);
+          }
+        }
+      )
+      .catch((error: any) => {
+        console.error("请求失败:", error);
+      });
+  };
+
+  // 页面加载时检查登录状态
+  onMounted(() => {
+    checkLoginStatus();
   });
-};
 </script>
 
 <style scoped>
-.login-container {
-  width: 500px;
-  height: 400px;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
+  .login-container {
+    width: 500px;
+    height: 400px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
 
-.form-group {
-  display: flex;
-  align-items: center; /* 垂直居中对齐 */
-  margin-bottom: 45px;
-}
+  .form-group {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    margin-bottom: 45px;
+  }
 
-label {
-  margin-right: 10px; /* 标签和输入框之间的间距 */
-  font-size: 16px;
-}
+  label {
+    margin-right: 10px; /* 标签和输入框之间的间距 */
+    font-size: 16px;
+  }
 
-input {
-  width: 400px;
-  padding: 8px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  height: 30px;
-}
+  input {
+    width: 400px;
+    padding: 8px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    height: 30px;
+  }
 
-button {
-  width: 85%;
-  padding: 10px;
-  background-color: #c3dff8;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 50px;
-}
+  button {
+    width: 85%;
+    padding: 10px;
+    background-color: #c3dff8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 50px;
+  }
 
-button:hover {
-  background-color: #0056b3;
-}
+  button:hover {
+    background-color: #0056b3;
+  }
 </style>

@@ -19,7 +19,7 @@
               <el-menu-item-group>
                 <el-menu-item index="2-1"@click="showInterview">前端预约</el-menu-item>
                 <el-menu-item index="2-2" @click="showInterview">后端预约</el-menu-item>
-                <el-menu-item index="2-3">Option 3</el-menu-item>
+                <el-menu-item index="2-3" @click="showStage">报名阶段管理</el-menu-item>
               </el-menu-item-group>
             </el-sub-menu>
           </el-menu>
@@ -29,6 +29,7 @@
         <el-main>
           <check v-if="isCheckVisible"></check>
           <interview  v-if="isInterview"></interview>
+          <stage  v-if="isStageShow"></stage>
         </el-main>
       </el-container>
     </el-container>
@@ -38,14 +39,23 @@
   import { ref } from 'vue';
   import check from './check.vue';
   import interview from './interview.vue';
+  import stage from './stage.vue';
   const isCheckVisible = ref(false);
-  const isInterview=ref(false);
+  const isInterview = ref(false);
+  const isStageShow = ref(false)
   function showCheck() {
     isCheckVisible.value = true;
-    isInterview.value=false
+    isInterview.value = false
+    isStageShow.value = false;
   }
   function showInterview() {
     isInterview.value = true;
+    isCheckVisible.value = false;
+    isStageShow.value = false;
+  }
+  function showStage() {
+    isStageShow.value = true
+    isInterview.value = false
     isCheckVisible.value = false;
   }
   </script>

@@ -70,7 +70,7 @@ const httpInterceptor = {
     let token: string = uni.getStorageSync('token')
     console.log(token)
     if (token) {
-      token = 'Bearer' + token
+      token = 'Bearer' + token  
       options.header.Authorization = token
     }
   }
