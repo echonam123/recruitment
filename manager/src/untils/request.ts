@@ -16,7 +16,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error: any) => {
     return Promise.reject(error);
   }
 );
@@ -26,15 +26,13 @@ axiosInstance.interceptors.response.use(
   (response:AxiosResponse) => {
     return response;
   },
-  (error) => {
+  (error: { response: any; }) => {
     const { response } = error;
     if (response) {
       // 请求已发出，但是不在2xx的范围
       showMessage(response.status); // 传入响应码，匹配响应码对应信息
       return Promise.reject(response.data);
     } else {
-      console.log(error)
-      
       alert("网络连接异常,请稍后再试!")
     }
   }
@@ -47,6 +45,7 @@ interface resData<T>{
 export function request<T>(data: any) {
   return new Promise<T>((resolve, reject) => {
    axiosInstance(data)
+<<<<<<< HEAD
       .then((res: AxiosResponse) => {
         if ((res.data as resData<T>).code >= 200 && (res.data as resData<T>).code<300) {
           resolve((res.data as resData<T>).data)
@@ -56,6 +55,15 @@ export function request<T>(data: any) {
       })
       .catch((err) => {
         reject(err)
+=======
+      .then((res: any) => {
+        showMessage(res.status)
+        resolve(res.data);
+      })
+      .catch((err: any) => {
+        showMessage(err.status)
+        reject(err.data);
+>>>>>>> 3ddaca872bd2317091a896327b78c69186e0ec46
       });
   });
 }
