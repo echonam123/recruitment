@@ -59,7 +59,7 @@ const onChooseAvatar = (event: { detail: { avatarUrl: any; }; }) => {
 const validLogin = (code: string) => {
     return new Promise<TokenData>((resolve, reject) => {
         uni.request({
-            url: 'https://39.106.69.15:8081/user/login',
+            url: 'http://39.106.69.15:8081/user/login',
             method: 'POST',
             header: {
                 'Content-Type': 'application/json'

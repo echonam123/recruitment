@@ -68,7 +68,7 @@ let list = ref<any>([
 
 //获取阶段信息
 let isPull = ref(false)
-let activeIndex = ref(0)
+let activeIndex = ref(-1)
 // 修改完成阶段的信息
 function editStatus() {
 	for (let i = 0; i < list.value.length; i++){
@@ -135,11 +135,19 @@ async function getStage() {
 			url: '/user/user'
 		})
 		//看是否有报名，没有报名则没有报名信息
-		let stageName = '报名'
+		let stageName = ''
 		let isOut = false
 		if (r) {
 			isOut = r.out
 			stageName = r.stageName
+		} else {
+			//若没有报名查看当前时间所处阶段
+			list.value.forEach(ele => {
+				let nowTemp = new Date().getTime()
+				if (nowTemp >= new Date(ele.startTime).getTime() && nowTemp <= new Date(ele.endTime).getTime()) {
+					stageName = ele.title
+				}
+			})
 		}
 		//更改当前阶段的信息
 		list.value.forEach((ele) => {
@@ -169,8 +177,12 @@ async function getStage() {
 			isPull.value = false
 		}
 	} catch (err) {
-		console.log('出错了')
-		console.log(err)
+		uni.showToast({
+			icon: 'none',
+			title:'网络错误'
+		})
+		console.log('出错了',err)
+		
 	}
 }
 

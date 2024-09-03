@@ -12,11 +12,8 @@ axiosInstance.interceptors.request.use(
     if(token){
     // 配置请求头
       config.headers["Content-Type"] = "application/json;charset=UTF-8";
-      config.headers["token"] = 'Bearer'+ token;
-      console.log(token)
+      config.headers["Authorization"] = 'Bearer'+ token;
     }
-    console.log(config)
-    
     return config;
   },
   (error) => {
@@ -42,14 +39,23 @@ axiosInstance.interceptors.response.use(
     }
   }
 );
-export function request(data: any) {
-  return new Promise((resolve, reject) => {
+interface resData<T>{
+  code: number,
+  message: string,
+  data:T
+}
+export function request<T>(data: any) {
+  return new Promise<T>((resolve, reject) => {
    axiosInstance(data)
-      .then((res: any) => {
-        resolve(res.data);
+      .then((res: AxiosResponse) => {
+        if ((res.data as resData<T>).code >= 200 && (res.data as resData<T>).code<300) {
+          resolve((res.data as resData<T>).data)
+        } else {
+          reject(res.data.message)
+        }
       })
-      .catch((err: any) => {
-        reject(err.data);
+      .catch((err) => {
+        reject(err)
       });
   });
 }
