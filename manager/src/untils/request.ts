@@ -8,30 +8,30 @@ export default axiosInstance
 //请求拦截
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token")
     if(token){
     // 配置请求头
-      config.headers["Content-Type"] = "application/json;charset=UTF-8";
-      config.headers["Authorization"] = 'Bearer'+ token;
+      config.headers["Content-Type"] = "application/json;charset=UTF-8"
+      config.headers["Authorization"] = 'Bearer'+ token
     }
-    return config;
+    return config
   },
   (error: any) => {
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
 );
 
 // 响应拦截
 axiosInstance.interceptors.response.use(
   (response:AxiosResponse) => {
-    return response;
+    return response
   },
   (error: { response: any; }) => {
-    const { response } = error;
+    const { response } = error
     if (response) {
       // 请求已发出，但是不在2xx的范围
-      showMessage(response.status); // 传入响应码，匹配响应码对应信息
-      return Promise.reject(response.data);
+      showMessage(response.status) // 传入响应码，匹配响应码对应信息
+      return Promise.reject(response.data)
     } else {
       alert("网络连接异常,请稍后再试!")
     }
@@ -45,17 +45,31 @@ interface resData<T>{
 export function request<T>(data: any) {
   return new Promise<T>((resolve, reject) => {
    axiosInstance(data)
-      .then((res: AxiosResponse) => {
+     .then((res: AxiosResponse) => {
         if ((res.data as resData<T>).code >= 200 && (res.data as resData<T>).code < 300) {
-          showMessage(res.status)
           resolve((res.data as resData<T>).data)
+        } else if (res.data.data.hasOwnProperty('startTime')) {
+          console.log(showMessage(res.status))
+          reject(res.data.data.startTime)
         } else {
-          showMessage(res.status)
+          console.log(showMessage(res.status))
           reject(res.data.message)
         }
       })
      .catch((err) => {
-        showMessage(err.status)
+       if ((err as resData<T>).code == 401) {
+         //清空token
+         if (localStorage.getItem('token')) {
+           localStorage.removeItem('token')
+           ElMessage({
+             showClose: true,
+             message: '请重新登录',
+             type: 'error',
+             duration: 2000
+           })
+         }
+       }
+       console.log(showMessage(err.status))
         reject(err)
       })
   })

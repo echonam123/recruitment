@@ -107,13 +107,17 @@
 <script lang='ts' setup name='stage'>
 import { ref } from 'vue'
 import { request } from '../untils/request';
-// import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 //loading加载
 let loading = ref(true)
+let isFresh = ref(false)
 //刷新重新发送请求
-function refresh() {
-  getAllStage()
+async function refresh() {
+  if (!isFresh.value) {
+    isFresh.value = true
+    await getAllStage()
+    isFresh.value = false
+  }
 }
 //获取阶段信息
 let tableData:any = ref([])
@@ -141,8 +145,8 @@ async function getAllStage() {
   tableData.value = []
   try {
     let res = await request<myStage[]>({
-    url: 'stage/listStage',
-    method: 'GET'
+      url: 'stage/listStage',
+      method: 'GET'
     })
     res.forEach(ele => {
       tableData.value.push({
@@ -160,10 +164,10 @@ async function getAllStage() {
       showClose: true,
       message: `${err}`,
       type: 'error',
+      duration:2000
     })
   }
 }
-
 
 //新增阶段信息对话框
 let dialogVisible = ref(false)

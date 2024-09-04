@@ -67,7 +67,6 @@ let list = ref<any>([
 ])
 
 //获取阶段信息
-let isPull = ref(false)
 let activeIndex = ref(-1)
 // 修改完成阶段的信息
 function editStatus() {
@@ -81,7 +80,6 @@ function editStatus() {
 				list.value[i].status = '未开始'
 		}
 	}
-	console.log(list.value)
 }
 
 //获取阶段信息
@@ -113,6 +111,8 @@ async function getStage() {
 		let res = await http<stage[]>({
 			url: '/stage/listStage'
 		})
+		console.log(res)
+		
 		//清空list数组，将阶段信息放入list数组中
 		list.value = []
 		res.forEach(ele => {
@@ -187,9 +187,14 @@ async function getStage() {
 }
 
 //上拉刷新功能
-onPullDownRefresh(() => {
-	isPull.value = true
-	getStage()
+let isPull = ref(false)
+onPullDownRefresh(async () => {
+	if (!isPull.value) {
+		isPull.value = true
+		await getStage()
+		uni.stopPullDownRefresh()
+		isPull.value = false
+	}
 })
 </script>
 

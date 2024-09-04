@@ -28,7 +28,9 @@
 		{
 			"path": "pages/currentProcess/currentProcess",
 			"style": {
-				"navigationBarTitleText": "当前进程"
+				"navigationBarTitleText": "当前进程",
+				"enablePullDownRefresh":true,  
+				"backgroundColor": "#a1d8b0" 
 			}
 		},
 		{
@@ -68,7 +70,7 @@
 			{
 				"iconPath": "static/progress_default.png",
 				"selectedIconPath": "static/progress.png",
-				"pagePath": "pages/currentProcess/currentProcess",
+				"pagePath": "pages/process/process",
 				"text": "进程"
 			},
 			{

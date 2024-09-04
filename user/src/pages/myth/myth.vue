@@ -5,10 +5,9 @@
   <Login></Login>
   <uni-list>
     <uni-list-item
-      title="招新流程
-      "
+      title="当前进程"
       link
-      to="/pages/process/process"
+      to="/pages/currentProcess/currentProcess"
       @click="onClick()"
     ></uni-list-item>
     <uni-list-item
