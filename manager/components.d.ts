@@ -34,6 +34,8 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     Interview: typeof import('./src/components/interview.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     Stage: typeof import('./src/components/stage.vue')['default']
   }
   export interface ComponentCustomProperties {

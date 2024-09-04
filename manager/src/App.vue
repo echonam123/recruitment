@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import login from './components/login.vue'
+import login from './pages/login.vue'
 </script>
 
 <template>

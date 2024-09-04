@@ -27,36 +27,24 @@
     </el-aside>
     <el-container>
       <el-main>
-        <check v-if="isCheckVisible"></check>
-        <interview  v-if="isInterview"></interview>
-        <stage  v-if="isStageShow"></stage>
+        <RouterView></RouterView>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import check from './check.vue';
-import interview from './interview.vue';
-import stage from './stage.vue';
-const isCheckVisible = ref(false);
-const isInterview = ref(false);
-const isStageShow = ref(false)
+import { RouterView ,useRouter} from 'vue-router'
+const router = useRouter()
+
 function showCheck() {
-  isCheckVisible.value = true;
-  isInterview.value = false
-  isStageShow.value = false;
+  router.push('/check') 
 }
 function showInterview() {
-  isInterview.value = true;
-  isCheckVisible.value = false;
-  isStageShow.value = false;
+  router.push('interview') 
 }
 function showStage() {
-  isStageShow.value = true
-  isInterview.value = false
-  isCheckVisible.value = false;
+  router.push('stage')
 }
 </script>
 
