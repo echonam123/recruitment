@@ -1,3 +1,4 @@
+
 <template>
   <el-container class="layout-container-demo" style="height: 90%">
     <!-- 左侧导航栏 -->
@@ -10,7 +11,7 @@
             </template>
             <el-menu-item-group>
               <el-menu-item index="1-1" @click="showCheck">查看报名人员</el-menu-item>
-              <el-menu-item index="1-2" @click="showBatch">筛选报名人员</el-menu-item>
+              <el-menu-item index="1-2" @click="showBatch">批量操作</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
           <el-sub-menu index="2">
@@ -38,7 +39,7 @@
 
       <!-- 主要内容 -->
       <el-main>
-        <check v-if="isCheckVisible"></check>
+        <check v-if="isCheckVisible" @show="fetchData"></check>
         <interview v-if="isInterview"></interview>
         <batch v-if="isBatch"></batch>
       </el-main>
@@ -51,10 +52,15 @@ import { ref } from 'vue';
 import check from './check.vue';
 import interview from './interview.vue';
 import batch from './batch.vue';
+// import {CheckApplicants} from '../api/modules/user'
+import {useStore} from 'vuex'
+import {watchEffect} from 'vue'
 
 const isCheckVisible = ref(false);
 const isInterview = ref(false);
 const isBatch = ref(false);
+
+const store = useStore();
 
 function showCheck() {
   isCheckVisible.value = true;
@@ -78,6 +84,23 @@ function logout() {
   // 退出登录逻辑
   console.log("管理员已退出登录");
 }
+
+const fetchData = async () => {
+  await store.dispatch('fetchApplicantsData');
+};
+
+// 使用 watchEffect 监听 isCheckVisible 的变化
+watchEffect(() => {
+  if (isCheckVisible.value) {
+    fetchData();
+  }
+});
+watchEffect(() => {
+  if (isBatch.value) {
+    fetchData();
+  }
+});
+
 </script>
 
 <style scoped>

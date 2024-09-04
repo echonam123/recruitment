@@ -24,13 +24,11 @@
 import { ref } from 'vue';
 import Index from './index.vue';
 import { ElMessageBox,ElMessage} from 'element-plus';
-
-import axios from 'axios';
 import { Login } from '../api/modules/login';
 
 const username = ref('');
 const password = ref('');
-const isLoggedIn = ref(true); // 控制登录状态，初始值为 false
+const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
 const handleSubmit = async() => {
   try{
     const response = await Login(username.value,password.value)
@@ -39,7 +37,7 @@ const handleSubmit = async() => {
     // 重置输入框
     username.value = '';
     password.value = '';
-    localStorage.setItem('token', response.data.data.token)
+    localStorage.setItem('token', "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBRE1JTiIsImNyZWF0ZWQiOjE3MjU0NjMxNzM5MTIsImFkbWluSWQiOjEsImV4cCI6MTcyNjA2Nzk3M30.OYz-FPb2eJyJVxLnYf1uAJcCPXJP6MDFjZPajUrDvVpn17cjIfVBd6Qi-lmTrNEhT50pUm-wUe0rqQzE_N0Sbw")
     console.log(response.data.data.token)
     ElMessageBox.alert('登录成功', '成功', {
       confirmButtonText: '确定',

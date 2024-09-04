@@ -3,11 +3,10 @@ import {baseURL} from '../base'
 
 import {request} from '../base';
 
-//stageId 确保整型-待处理
 export const CheckApplicants = async(Authorization:string,college?:string,major?:string,stageId?:number,isOut?:boolean) => {
-    if (stageId !== undefined && !Number.isInteger(stageId)) {
-        throw new Error('stageId 必须是整数');
-    }
+    // if (stageId !== undefined && !Number.isInteger(stageId)) {
+    //     throw new Error('stageId 必须是整数');
+    // }
     const res = await request.post(`${baseURL}/user/select`,
         {college:college,major:major,stageId:stageId,isOut:isOut},
         {
@@ -28,7 +27,7 @@ export const SelectUser = async(name?:string,studentId?:string) => {
 }
 
 //批量淘汰人 接口
-export const BatchOut = async(Authorization:string,userIds:number[]) => {
+export const BatchOut = async(Authorization:string,userIds:string[]) => {
     if (!Array.isArray(userIds) || !userIds.every(id => Number.isInteger(id))) {
         throw new Error('userIds 必须是一个包含整数的数组');
     }

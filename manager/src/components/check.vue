@@ -1,5 +1,5 @@
 <template>
-  <el-select
+  <!-- <el-select
     v-model="selectedFilter"
     filterable
     placeholder="Select Filter"
@@ -27,51 +27,101 @@
       :label="item.label"
       :value="item.value"
     />
-  </el-select>
-  <el-button @click="showAll">Show All</el-button>
+  </el-select> -->
+  <!-- <el-button @click="showAll">Show All</el-button> -->
+  <div>
+    <el-input
+      v-model="nameFilter"
+      placeholder="输入姓名（可选）"
+      clearable
+      style="width: 160px; margin-right: 10px;"
+    />
+    <el-input
+      v-model="nameFilter"
+      placeholder="输入学号（可选）"
+      clearable
+      style="width: 160px; margin-right: 10px;"
+    />
+    <el-select
+      v-model="collegeFilter"
+      placeholder="选择学院"
+      clearable
+      style="width: 180px; margin-right: 10px;"
+    >
+      <el-option
+        v-for="item in colleges"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <el-select
+      v-model="majorFilter"
+      placeholder="选择专业"
+      clearable
+      style="width: 180px; margin-right: 10px;"
+    >
+      <el-option
+        v-for="item in majors"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <el-select
+      v-model="statusFilter"
+      placeholder="选择状态"
+      clearable
+      style="width: 180px; margin-right: 10px;"
+    >
+      <el-option
+        v-for="item in statuses"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <el-button @click="search">搜索</el-button>
+    <el-button @click="resetFilters">重置</el-button>
+  </div>
   <el-divider content-position="center">查看报名人员</el-divider>
   <el-table :data="filteredTableData" border style="width: 100%">
-    <el-table-column prop="name" label="Name" width="180" />
-    <el-table-column prop="college" label="College" width="180" />
-    <el-table-column prop="class" label="Class" width="180" />
-    <el-table-column prop="studentId" label="StudentId" width="180" />
-    <el-table-column prop="direction" label="Direction" width="180" />
-    <el-table-column prop="phone" label="Phone" width="180" />
-    <el-table-column prop="introduction" label="Introduction" />
-    <el-table-column label="评价">
-      <template #default="scope">
-        <el-button type="primary" @click="openDialog(scope.row)">评价</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+    <el-table-column prop="name" label="姓名" width="180" />
+    <el-table-column prop="college" label="学院" width="180" />
+    <el-table-column prop="className" label="班级" width="180" />
+    <el-table-column prop="studentId" label="序号" width="180" />
+    <el-table-column prop="direction" label="方向" width="180" />
+    <el-table-column prop="phone" label="邮箱" width="180" />
+    <el-table-column prop="introduction" label="简介" width="180" />
+    <el-table-column prop="stageName" label="进度" width="100" />
+    <el-table-column prop="out" label="是否淘汰" width="85" />
 
-  <el-dialog v-model="dialogVisible" title="评价">
-    <div>
-      <el-rate v-model="currentRating"></el-rate>
-      <el-input
-        type="textarea"
-        v-model="currentComment"
-        placeholder="请输入评价内容"
-        rows="4"
-      ></el-input>
-    </div>
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="submitRating">提交</el-button>
-    </span>
-  </el-dialog>
+
+  </el-table>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox,ElDialog } from 'element-plus';
+// import { ElMessageBox,ElDialog } from 'element-plus';
 import { ref, computed } from 'vue';
+import { Applicant } from '../api/base';
+import { onMounted } from 'vue';
+import 'element-plus/dist/index.css';
+import store from '../store';
+
 const selectedFilter = ref('');
 const secondaryFilter = ref('');
 const showAllFilter = ref(false);
 
-const dialogVisible = ref(false);
-const currentRating = ref(0);
-const currentComment = ref('');
-const currentUser = ref<any>(null);
+const rawData = computed(() => {
+  return store.state.rawData; // 引用 Vuex 状态
+});
+
+const tableData = computed(() =>
+  rawData.value.map(item => ({
+    ...item,
+    direction: getDirectionText(item.direction),
+    out: item.out ? '是' : '否',
+  }))
+);
 
 const options = [
   { value: '学院', label: '学院' },
@@ -89,11 +139,11 @@ const filtertype = (filter: string) => {
     if (filter === '学院') {
       uniqueValues.add(item.college);
     } else if (filter === '专业') {
-      uniqueValues.add(item.class);
+      uniqueValues.add(item.major);
     } else if (filter === '进度') {
-      uniqueValues.add(item.progress);
+      uniqueValues.add(item.stageName);
     } else if (filter === '淘汰情况') {
-      uniqueValues.add(item.eliminationStatus);
+      uniqueValues.add(item.out ? '淘汰' : '未淘汰');
     } else if (filter === '方向') {
       uniqueValues.add(item.direction);
     }
@@ -110,113 +160,45 @@ const updateSecondaryOptions = () => {
     showAllFilter.value = false; // 选择的筛选条件为空时，关闭“展示全部”状态
   }
 };
+
+// 计算属性，将 direction 数字转换为对应的文字
+const getDirectionText = (direction: number): string => {
+  switch (direction) {
+    case 1:
+      return '前端开发';
+    case 2:
+      return '后端开发';
+    default:
+      return '未知方向';
+  }
+};
 //展示所有报名学生
 const showAll = () => {
   selectedFilter.value = '';
   secondaryFilter.value = '';
   showAllFilter.value = true;
 };
-const tableData = ref([
-    {
-      name: '张三',
-      college: '计算机学院',
-      class: '软件工程',
-      studentId: '2021001',
-      direction: '前端开发',
-      phone: '12345678901',
-      introduction: '对前端开发非常感兴趣，参与过多个项目。',
-      progress: '已完成',
-      eliminationStatus: '未淘汰'
-    },
-    {
-      name: '李四',
-      college: '计算机学院',
-      class: '人工智能',
-      studentId: '2021002',
-      direction: '机器学习',
-      phone: '12345678902',
-      introduction: '专注于机器学习领域，拥有一定的项目经验。',
-      progress: '进行中',
-      eliminationStatus: '未淘汰'
-    },
-    {
-      name: '王五',
-      college: '经济管理学院',
-      class: '金融学',
-      studentId: '2021003',
-      direction: '金融分析',
-      phone: '12345678903',
-      introduction: '金融分析领域有较强的背景知识。',
-      progress: '已完成',
-      eliminationStatus: '已淘汰'
-    },
-    {
-      name: '赵六',
-      college: '经济管理学院',
-      class: '市场营销',
-      studentId: '2021004',
-      direction: '市场策略',
-      phone: '12345678904',
-      introduction: '对市场策略有深入研究。',
-      progress: '进行中',
-      eliminationStatus: '未淘汰'
-    },
-    {
-      name: '赵六',
-      college: '经济管理学院',
-      class: '市场营销',
-      studentId: '2021004',
-      direction: '市场策略',
-      phone: '12345678904',
-      introduction: '对市场策略有深入研究。',
-      progress: '进行中',
-      eliminationStatus: '未淘汰'
-    }
-  ]);
 //渲染表格内容
 const filteredTableData = computed(() => {
   if (showAllFilter.value) {
-    return tableData.value; 
+      return tableData.value;
   }
-  
-  // 如果选择了某个筛选条件，则需要根据筛选条件过滤数据
+
   let data = tableData.value;
   if (selectedFilter.value && secondaryFilter.value) {
-    switch (selectedFilter.value) {
+      switch (selectedFilter.value) {
       case '学院':
-        data = data.filter(item => item.college === secondaryFilter.value);
-        break;
-      case '专业':
-        data = data.filter(item => item.class === secondaryFilter.value);
-        break;
-      case '进度':
-        data = data.filter(item => item.progress === secondaryFilter.value);
-        break;
-      case '淘汰情况':
-        data = data.filter(item => item.eliminationStatus === secondaryFilter.value);
-        break;
+          data = data.filter(item => item.college === secondaryFilter.value);
+          break;
       case '方向':
-        data = data.filter(item => item.direction === secondaryFilter.value);
-        break;
+          data = data.filter(item => item.direction === secondaryFilter.value);
+          break;
       default:
-        break;
-    }
+          break;
+      }
   }
   return data;
 });
-const openDialog = (user: any) => {
-  currentUser.value = user;
-  currentRating.value = 0;
-  currentComment.value = '';
-  dialogVisible.value = true;
-  console.log('click')
-};
-const submitRating = () => {
-  if (currentUser.value) {
-    // 这里可以执行保存评分和评价的逻辑，例如发送到后端
-    ElMessageBox.alert('rate sent')
-  }
-};
 </script>
 
 <style>
