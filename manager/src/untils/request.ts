@@ -29,6 +29,13 @@ axios.interceptors.request.use(
 // 响应拦截
 axios.interceptors.response.use(
   (response) => {
+    // 检查后端的自定义业务状态码
+    const { code } = response.data;
+    
+    if (code && code !== 200) {  // 假设 200 是成功的业务状态码，其他值代表错误
+      showMessage(code); // 根据业务状态码显示相应的错误消息
+      return Promise.reject(response.data);  // 返回错误信息
+    }
     return response;
   },
   (error) => {

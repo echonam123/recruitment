@@ -5,7 +5,8 @@ import { Applicant } from '../api/base';
 export default createStore({
   state: {
     rawData: [] , // 或者使用具体的类型
-    token: 'Bearer '  + localStorage.getItem('token'), // 你可以在登录时设置这个 token
+    token: localStorage.getItem('token'), // 你可以在登录时设置这个 token
+    isLoggedIn: false,
   },
   mutations: {
     setApplicantsData(state:any, data) {
@@ -14,6 +15,9 @@ export default createStore({
     setToken(state:any, token:string) {
       state.token = token;
     },
+    setLoginStatus(state:any, status:boolean) {
+      state.isLoggedIn = status;
+    }
   },
   actions: {
     async fetchApplicantsData({ commit, state}) {

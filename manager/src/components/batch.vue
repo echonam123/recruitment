@@ -30,9 +30,6 @@
   </el-select>
   <el-button @click="showAll">Show All</el-button>
   <el-divider content-position="center">查看报名人员</el-divider>
-
-  
-
   <div>
       <el-table
         :data="currentPageData"
@@ -70,7 +67,7 @@
     </div>
   
   <div style="margin: 20px;">
-    <!-- <el-button type="primary" @click="batchPass">批量通过</el-button> -->
+    <el-button type="danger" @click="openNoticeDialog" style="background-color: skyblue;border:1px solid skyblue">批量通知</el-button>
     <el-button type="danger" @click="batchReject">批量淘汰</el-button>
   </div>
   <el-dialog v-model="dialogVisible" title="评价">
@@ -78,7 +75,7 @@
       <el-input type="number" v-model="currentRating" placeholder="输入分数"></el-input>
       <el-input
         type="textarea"
-        v-model="currentComment"
+        v-model="currentMessage"
         placeholder="请输入评价内容"
         rows="4"
       ></el-input>
@@ -88,6 +85,21 @@
       <el-button type="primary" @click="submitRating">提交</el-button>
     </span>
   </el-dialog>
+
+  <el-dialog v-model="noticedialogVisible" title="通知">
+    <div>
+      <el-input
+        type="textarea"
+        v-model="currentComment"
+        placeholder="请输入通知内容"
+        rows="4"
+      ></el-input>
+    </div>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="noticedialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitNotice">提交</el-button>
+    </span>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -95,6 +107,7 @@ import { ElMessageBox } from 'element-plus';
 import { ref, computed } from 'vue';
 import { Applicant } from '../api/base';
 import { BatchOut } from '../api/modules/user';
+import {SendNotice} from '../api/modules/notice';
 import { Rate } from '../api/modules/score';
 import {useStore} from 'vuex';
 const store = useStore();
@@ -103,9 +116,11 @@ const selectedFilter = ref('');
 const secondaryFilter = ref('');
 const showAllFilter = ref(false);
 
+const noticedialogVisible = ref(false);
 const dialogVisible = ref(false);
 const currentRating = ref(0);
 const currentComment = ref('');
+const currentMessage = ref('');
 const emptyApplicant: Applicant = {
   userId: 0,
   college: '',
@@ -194,8 +209,8 @@ rawData.value.map(item => ({
 );
 
 const filteredTableData = computed(() => {
-if (showAllFilter.value) {
-  return tableData.value;
+  if (showAllFilter.value) {
+    return tableData.value;
 }
 
 let data = tableData.value;
@@ -218,38 +233,71 @@ const handleSelectionChange = (val: any) => {
   multipleSelection.value = val;
 };
 
+const fetchData = async () => {
+  await store.dispatch('fetchApplicantsData');
+};
 const batchReject = async() => {
   if (multipleSelection.value.length === 0) {
-    ElMessageBox.alert('请先选择要通过的用户');
+    ElMessageBox.alert('请先选择要淘汰的用户');
     return;
   }
   try{
-    const passedStudentIds = multipleSelection.value.map(item => item.studentId);
+    const passedStudentIds = multipleSelection.value.map(item => item.userId);
     const response = await BatchOut(store.state.token,passedStudentIds)
-    ElMessageBox.alert(`通过的用户ID有: ${passedStudentIds.join(', ')}`);
-  }catch{
-    ElMessageBox.alert('操作失败，请重试')
+    fetchData();
+    ElMessageBox.alert(`淘汰的用户ID有: ${passedStudentIds.join(', ')}`);
+  }catch(error){
+    if (error instanceof Error) {
+      // 处理拦截器中抛出的错误
+      ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
+    } else {
+      // 处理其他未知错误
+      ElMessageBox.alert('提交通知失败，请检查网络或稍后重试');
+    }
   }
 };
-
 const openDialog = (user: Applicant) => {
   currentUser.value = user;
   currentRating.value = 0;
   currentComment.value = '';
   dialogVisible.value = true;
 };
-
 const submitRating = async() => {
-  // if (currentUser.value) {
-  //   ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentComment.value}`);
-  //   dialogVisible.value = false;
-  // }
   try{
     const response = await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentComment.value)
     ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentComment.value}`);
     dialogVisible.value = false;
-  }catch{
-    ElMessageBox.alert('提交评价失败，请重试');
+  }catch(error){
+    if (error instanceof Error) {
+      // 处理拦截器中抛出的错误
+      ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
+    } else {
+      // 处理其他未知错误
+      ElMessageBox.alert('提交通知失败，请检查网络或稍后重试');
+    }
+  }
+};
+const openNoticeDialog = () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessageBox.alert('请先选择要通知的用户');
+    return;
+  }
+  noticedialogVisible.value = true;
+}
+const submitNotice = async() => {
+  try{
+    const passedStudentIds = multipleSelection.value.map(item => item.phone);
+    const response = await SendNotice(passedStudentIds,currentMessage.value,token.value)
+    ElMessageBox.alert(`通知已提交: ${currentMessage.value}`);
+    noticedialogVisible.value = false;
+  }catch(error){
+    if (error instanceof Error) {
+      // 处理拦截器中抛出的错误
+      ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
+    } else {
+      // 处理其他未知错误
+      ElMessageBox.alert('提交通知失败，请检查网络或稍后重试');
+    }
   }
 };
 

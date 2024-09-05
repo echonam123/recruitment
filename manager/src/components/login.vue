@@ -21,23 +21,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import Index from './index.vue';
 import { ElMessageBox,ElMessage} from 'element-plus';
 import { Login } from '../api/modules/login';
+import {useStore} from 'vuex';
+const store = useStore();
 
 const username = ref('');
 const password = ref('');
-const isLoggedIn = ref(false); // 控制登录状态，初始值为 false
+const isLoggedIn = computed(() => store.state.isLoggedIn);
 const handleSubmit = async() => {
   try{
     const response = await Login(username.value,password.value)
     // 登录成功
-    isLoggedIn.value = true;
+    store.commit('setLoginStatus', true);
     // 重置输入框
     username.value = '';
     password.value = '';
-    localStorage.setItem('token', "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBRE1JTiIsImNyZWF0ZWQiOjE3MjU0NjMxNzM5MTIsImFkbWluSWQiOjEsImV4cCI6MTcyNjA2Nzk3M30.OYz-FPb2eJyJVxLnYf1uAJcCPXJP6MDFjZPajUrDvVpn17cjIfVBd6Qi-lmTrNEhT50pUm-wUe0rqQzE_N0Sbw")
+    localStorage.setItem("token",response.data.data.tokenHead + ' ' + response.data.data.token)
     console.log(response.data.data.token)
     ElMessageBox.alert('登录成功', '成功', {
       confirmButtonText: '确定',
@@ -45,13 +47,13 @@ const handleSubmit = async() => {
       },  
     });
   }catch(error){
-    // 捕获并处理错误
-    ElMessageBox.alert('请求失败，请重试。', '错误', {
-      confirmButtonText: '确定',
-      callback: () => {
-      },
-    });
-    console.error('Error:', error);
+    if (error instanceof Error) {
+      // 处理拦截器中抛出的错误
+      ElMessageBox.alert(`登录失败。错误信息: ${error.message}`);
+    } else {
+      // 处理其他未知错误
+      ElMessageBox.alert('登录失败，请检查网络或稍后重试');
+    }
   }
 };
 </script>

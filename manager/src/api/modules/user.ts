@@ -20,19 +20,16 @@ export const CheckApplicants = async(Authorization:string,college?:string,major?
 
 //按姓名、学号搜索对应用户 接口
 export const SelectUser = async(name?:string,studentId?:string) => {
-    const res = await request.post(`${baseURL}/user/select`,
+    const res = await request.post('/user/selectUser',
         {name:name,studentId:studentId}
     )
     return res;
 }
 
 //批量淘汰人 接口
-export const BatchOut = async(Authorization:string,userIds:string[]) => {
-    if (!Array.isArray(userIds) || !userIds.every(id => Number.isInteger(id))) {
-        throw new Error('userIds 必须是一个包含整数的数组');
-    }
-    const res = await request.post(`${baseURL}/user/batch`,
-        {userIds:userIds},
+export const BatchOut = async(Authorization:string,userIds:number[]) => {
+    const res = await request.post('/user/batch',
+        {userId:userIds},
         {
             headers: {Authorization:Authorization}
         }
@@ -42,10 +39,7 @@ export const BatchOut = async(Authorization:string,userIds:string[]) => {
 
 //批量淘汰用户 接口
 export const BatchOutUser = async(Authorization:string,userIds:number[]) => {
-    if (!Array.isArray(userIds) || !userIds.every(id => Number.isInteger(id))) {
-        throw new Error('userIds 必须是一个包含整数的数组');
-    }
-    const res = await request.put(`${baseURL}/user/batch`,
+    const res = await request.put(`${baseURL}/admin/out`,
         {array:userIds},
         {
             headers: {Authorization:Authorization}

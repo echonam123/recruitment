@@ -55,6 +55,7 @@ import batch from './batch.vue';
 // import {CheckApplicants} from '../api/modules/user'
 import {useStore} from 'vuex'
 import {watchEffect} from 'vue'
+import { ElMessage } from 'element-plus';
 
 const isCheckVisible = ref(false);
 const isInterview = ref(false);
@@ -82,9 +83,17 @@ function showInterview() {
 
 function logout() {
   // 退出登录逻辑
-  console.log("管理员已退出登录");
-}
+  // 清除登录状态
+  localStorage.removeItem('token');
+  // 路由跳转 待配置
+  // window.location.href = '/login';
+  store.commit("setLoginStatus",false)
+  ElMessage.success('退出登录成功');
 
+}
+/**
+ * 若使用路由，利用生命周期更新数据
+ */
 const fetchData = async () => {
   await store.dispatch('fetchApplicantsData');
 };

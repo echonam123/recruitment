@@ -1,7 +1,7 @@
 // api
 import axios from 'axios';
 import { showMessage } from "../untils/status"; // 引入状态码文件
-import { ElMessage } from "element-plus"; // 引入el 提示框
+import { ElMessage, ElMessageBox } from "element-plus"; // 引入el 提示框
 // 定义baseURL
 export const baseURL = 'http://39.106.69.15:8081';
 
@@ -32,15 +32,22 @@ axios.interceptors.request.use(
 );
 
 // 响应拦截
-axios.interceptors.response.use(
+request.interceptors.response.use(
   (response) => {
+    // 检查后端的自定义业务状态码
+    const { code } = response.data;
+    if (code && code !== 200) {
+      showMessage(code);
+      return Promise.reject(new Error(response.data.message || '业务逻辑错误'));
+    }
     return response;
   },
   (error) => {
     const { response } = error;
     if (response) {
       // 请求已发出，但是不在2xx的范围
-      showMessage(response.status); // 传入响应码，匹配响应码对应信息
+      // showMessage(response.status); // 传入响应码，匹配响应码对应信息
+      ElMessageBox.alert(response.data.message);
       return Promise.reject(response.data);
     } else {
       ElMessage.warning("网络连接异常,请稍后再试!");
