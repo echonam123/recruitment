@@ -73,8 +73,8 @@ const handleSubmit = () => {
 
 // 页面加载时检查登录状态
 onMounted(() => {
-  checkLoginStatus();
-});
+  checkLoginStatus()
+})
 </script>
 
 <style scoped>

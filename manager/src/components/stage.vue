@@ -130,12 +130,13 @@ interface myStage{
 }
 //判断如今所处阶段
 function checkStatus(startTime:any,endTime:any) {
-  let nowTemp = new Date()
+  let nowTemp = new Date().getTime()
   startTime = new Date(startTime).getTime()
   endTime = new Date(endTime).getTime()
-  if (nowTemp >= startTime && nowTemp < endTime) {
-    console.log('启动中');
+  if (nowTemp >= startTime && nowTemp <= endTime) {
     return '启动中'
+  } else if(nowTemp>endTime) {
+    return '已完成'
   } else {
     return '未启动'
   }

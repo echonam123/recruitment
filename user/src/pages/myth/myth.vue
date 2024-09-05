@@ -5,6 +5,12 @@
   <Login></Login>
   <uni-list>
     <uni-list-item
+      title="报名"
+      link
+      to="/pages/apply/apply"
+      @click="onClick()"
+    ></uni-list-item>
+    <uni-list-item
       title="当前进程"
       link
       to="/pages/currentProcess/currentProcess"

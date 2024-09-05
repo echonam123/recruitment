@@ -29,8 +29,8 @@
 			"path": "pages/currentProcess/currentProcess",
 			"style": {
 				"navigationBarTitleText": "当前进程",
-				"enablePullDownRefresh":true,  
-				"backgroundColor": "#a1d8b0" 
+				"enablePullDownRefresh": true,
+				"backgroundColor": "#a1d8b0"
 			}
 		},
 		{
@@ -50,6 +50,13 @@
 			"style": {
 				"navigationBarTitleText": "预约"
 			}
+		},
+		{
+			"path": "pages/apply/apply",
+			"style": {
+				"navigationBarTitleText": "报名",
+				"navigationBarBackgroundColor": "#fff"
+			}
 		}
 	],
 	"globalStyle": {
@@ -62,7 +69,7 @@
 		"selectedColor": "#397d54",
 		"list": [
 			{
-				"iconPath":"static/homeDefault.png" ,
+				"iconPath": "static/homeDefault.png",
 				"selectedIconPath": "static/home.png",
 				"pagePath": "pages/intro/intro",
 				"text": "工作室介绍"
