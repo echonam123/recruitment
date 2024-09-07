@@ -198,7 +198,7 @@ async function addAppointment() {
       stageId: form.value.stageid,
       direction: form.value.direction
     }
-  loading.value = true
+    loading.value=true
     try {
       await request({
         method: 'POST',
@@ -209,11 +209,10 @@ async function addAppointment() {
         form.value.endTime = ''
         form.value.capacity = 0
         showDialog.value = false
-        await getInterview()
-  loading.value = false
+        getInterview()
         alert('添加预约时间成功！')
     } catch (error) {
-      console.error('添加预约失败:', error)
+      alert('添加预约失败')
     }
   } else {
     alert('请填写所有字段，并确保开始时间早于结束时间')
