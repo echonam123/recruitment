@@ -19,7 +19,7 @@
     <uni-list-item
       title="预约"
       link
-      to="/pages/book/chooseBook"
+      to="/pages/book/book"
       @click="onClick()"
     ></uni-list-item>
   </uni-list>

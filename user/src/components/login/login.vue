@@ -212,13 +212,13 @@ onMounted(async () => {
 }
 
 .avatar-wrapper {
-    position: absolute; /* 确保头像位置固定 */
+    position: absolute; 
     height: 70px; 
     width: 70px;  
     border-radius: 50%; 
     margin-right: 10px;
     background-color: #f4f8fb;
-    left: 10px; /* 调整头像的位置 */
+    left: 10px; 
 }
 
 .avatar {

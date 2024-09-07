@@ -40,12 +40,6 @@
 			}
 		},
 		{
-			"path": "pages/book/chooseBook",
-			"style": {
-				"navigationBarTitleText": "预约"
-			}
-		},
-		{
 			"path": "pages/book/book",
 			"style": {
 				"navigationBarTitleText": "预约"
