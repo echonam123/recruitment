@@ -21,60 +21,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 import Index from './index.vue';
-import axiosInstance from '../untils/request'
-// 使用 ref 使变量具备响应性
+import { ElMessageBox,ElMessage} from 'element-plus';
+import { Login } from '../api/modules/login';
+import {useStore} from 'vuex';
+const store = useStore();
+
 const username = ref('');
 const password = ref('');
-const isLoggedIn = ref(false);
-
-// 读取 token 和检查登录状态
-const checkLoginStatus = () => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    isLoggedIn.value = true; // 如果 token 存在，则认为已经登录
-  } else {
-    isLoggedIn.value = false; // 否则未登录
-  }
-};
-
-// 处理表单提交
-const handleSubmit = () => {
-  if (!username.value || !password.value) {
-    console.error('请填写所有字段');
-    return;
-  }
-
-  // 登录请求
-  axiosInstance.post('admin/login', {
-    username: username.value,
-    password: password.value
-  })
-  .then((response: { data: { code: number; data: { token: string; }; message: any; }; }) => {
-    console.log(response);
-    if (response.data.code === 200) {
-      // 登录成功
-      isLoggedIn.value = true;
-      // 重置输入框
-      username.value = '';
-      password.value = '';
-      localStorage.setItem('token', response.data.data.token);
-      console.log(response.data.data.token);
+const isLoggedIn = computed(() => store.state.isLoggedIn);
+const handleSubmit = async() => {
+  try{
+    const response = await Login(username.value,password.value)
+    // 登录成功
+    store.commit('setLoginStatus', true);
+    // 重置输入框
+    store.commit('setCurrentAdmin',username.value)
+    username.value = '';
+    password.value = '';
+    localStorage.setItem("token",response.data.data.tokenHead + ' ' + response.data.data.token)
+    console.log(response.data.data.token)
+    ElMessageBox.alert('登录成功', '成功', {
+      confirmButtonText: '确定',
+      callback: () => {
+      },  
+    });
+  }catch(error){
+    if (error instanceof Error) {
+      // 处理拦截器中抛出的错误
+      ElMessageBox.alert(`登录失败。错误信息: ${error.message}`);
     } else {
-      // 登录失败处理
-      console.error('登录失败:', response.data.message);
+      // 处理其他未知错误
+      ElMessageBox.alert('登录失败，请检查网络或稍后重试');
     }
-  })
-  .catch((error: any) => {
-    console.error('请求失败:', error);
-  });
+  }
 };
 
 // 页面加载时检查登录状态
-onMounted(() => {
-  checkLoginStatus()
-})
+// onMounted(() => {
+//   checkLoginStatus()
+// })
 </script>
 
 <style scoped>

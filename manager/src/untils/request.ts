@@ -12,7 +12,7 @@ axiosInstance.interceptors.request.use(
     if(token){
     // 配置请求头
       config.headers["Content-Type"] = "application/json;charset=UTF-8"
-      config.headers["Authorization"] = 'Bearer'+ token
+      config.headers["Authorization"] = token
     }
     return config
   },
@@ -22,9 +22,16 @@ axiosInstance.interceptors.request.use(
 );
 
 // 响应拦截
-axiosInstance.interceptors.response.use(
-  (response:AxiosResponse) => {
-    return response
+axios.interceptors.response.use(
+  (response) => {
+    // 检查后端的自定义业务状态码
+    const { code } = response.data;
+    
+    if (code && code !== 200) {  // 假设 200 是成功的业务状态码，其他值代表错误
+      showMessage(code); // 根据业务状态码显示相应的错误消息
+      return Promise.reject(response.data);  // 返回错误信息
+    }
+    return response;
   },
   (error: { response: any; }) => {
     const { response } = error

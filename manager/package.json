@@ -12,9 +12,13 @@
     "axios": "^1.7.5",
     "element-plus": "^2.8.1",
     "vue": "^3.4.37",
+    "vuex": "^4.0.2",
     "vue-router": "^4.4.3"
   },
   "devDependencies": {
+    "@dcloudio/types": "^3.4.12",
+    "@types/axios": "^0.14.0",
+    "@uni-helper/uni-app-types": "^1.0.0-alpha.3",
     "@vitejs/plugin-vue": "^5.1.2",
     "typescript": "^5.5.3",
     "unplugin-auto-import": "^0.18.2",
