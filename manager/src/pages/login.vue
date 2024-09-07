@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref , onMounted } from 'vue';
 import Index from './index.vue';
 import { ElMessageBox,ElMessage} from 'element-plus';
 import { Login } from '../api/modules/login';
@@ -58,10 +58,16 @@ const handleSubmit = async() => {
   }
 };
 
-// 页面加载时检查登录状态
-// onMounted(() => {
-//   checkLoginStatus()
-// })
+//页面加载时检查登录状态
+onMounted(() => {
+  checkLoginStatus()
+})
+const checkLoginStatus = () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    store.commit('setLoginStatus', true);
+  }
+}
 </script>
 
 <style scoped>
