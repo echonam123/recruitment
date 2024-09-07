@@ -54,7 +54,7 @@ export default {
   onReady() {
     this.$nextTick(() => {
       this.showCalendar = true;
-    });
+    })
     this.fetchDetails()
       .then(details => {
         const { direction, stageId } = details;
@@ -115,7 +115,7 @@ export default {
         this.info.selected = uniqueDates.map(date => ({
           date: date,
           info: '可预约'
-        }));
+        }))
       })
       .catch(error => {
         console.error('获取预约数据失败:', error);
@@ -134,36 +134,38 @@ export default {
           date: date,
           info: date === selectedDate ? '可预约' : '不可预约'
         }))
-        this.$refs.popup.open("bottom");
+        this.$refs.popup.open("bottom")
       } else {
         uni.showToast({
           title: "此日期不可预约",
           icon: "none",
-        });
+        })
       }
     },
     cancelReservation(reservationId) {
-      uni.showLoading({ title: '正在取消预约中...' });
+      uni.showLoading({ title: '正在取消预约中...' })
       return http({
         url: `/interview/cancel/${reservationId}`,
         method: 'PUT'
       })
       .then(response => {
+        this.currentReservationTimeSolt=null
         this.filteredTimeSlots = this.filteredTimeSlots.map(slot => {
       if (slot.timeId === this.currentReservationTimeSolt) { 
-        return { ...slot, remaining: slot.remaining +1 };
+        return { ...slot, remaining: slot.remaining +1 }
       }
-      return slot;
+      return slot
+    
     })
         uni.showToast({
           title: "预约已取消",
           icon: "success",
         })
         
-        this.currentReservationId = null;
-        this.currentReservationTimeSlot = null;
-        uni.removeStorageSync('reservation');
-        uni.removeStorageSync('currentReservationTimeSolt');
+        this.currentReservationId = null
+        this.currentReservationTimeSlot = null
+        uni.removeStorageSync('reservation')
+        uni.removeStorageSync('currentReservationTimeSolt')
       })
       .catch(error => {
         console.error('取消预约失败:', error);

@@ -209,6 +209,7 @@ onMounted(async () => {
     background-color: rgb(232, 246, 252);
     border-radius: 10px;
     margin: 10px;
+    margin-top: -50px;
 }
 
 .avatar-wrapper {
