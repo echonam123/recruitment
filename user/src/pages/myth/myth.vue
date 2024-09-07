@@ -5,16 +5,21 @@
   <Login></Login>
   <uni-list>
     <uni-list-item
-      title="招新流程
-      "
+      title="报名"
       link
-      to="/pages/process/process"
+      to="/pages/apply/apply"
+      @click="onClick()"
+    ></uni-list-item>
+    <uni-list-item
+      title="当前进程"
+      link
+      to="/pages/currentProcess/currentProcess"
       @click="onClick()"
     ></uni-list-item>
     <uni-list-item
       title="预约"
       link
-      to="/pages/book/chooseBook"
+      to="/pages/book/book"
       @click="onClick()"
     ></uni-list-item>
   </uni-list>
@@ -22,7 +27,6 @@
 <script setup lang="ts">
 import Login from "../../components/login/login.vue";
 const onClick = () => {
-  console.log(1);
 };
 </script>
 <style>
@@ -31,8 +35,8 @@ page {
 }
 image {
   width: 100%;
-  z-index: 1000;
+  z-index: 1;
   margin-bottom: 0;
-  height: 180px;
+  height: 260px;
 }
 </style>

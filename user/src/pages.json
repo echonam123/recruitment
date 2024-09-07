@@ -28,7 +28,9 @@
 		{
 			"path": "pages/currentProcess/currentProcess",
 			"style": {
-				"navigationBarTitleText": "当前进程"
+				"navigationBarTitleText": "当前进程",
+				"enablePullDownRefresh": true,
+				"backgroundColor": "#a1d8b0"
 			}
 		},
 		{
@@ -38,15 +40,16 @@
 			}
 		},
 		{
-			"path": "pages/book/chooseBook",
+			"path": "pages/book/book",
 			"style": {
 				"navigationBarTitleText": "预约"
 			}
 		},
 		{
-			"path": "pages/book/book",
+			"path": "pages/apply/apply",
 			"style": {
-				"navigationBarTitleText": "预约"
+				"navigationBarTitleText": "报名",
+				"navigationBarBackgroundColor": "#fff"
 			}
 		}
 	],
@@ -60,7 +63,7 @@
 		"selectedColor": "#397d54",
 		"list": [
 			{
-				"iconPath":"static/homeDefault.png" ,
+				"iconPath": "static/homeDefault.png",
 				"selectedIconPath": "static/home.png",
 				"pagePath": "pages/intro/intro",
 				"text": "工作室介绍"
@@ -68,7 +71,7 @@
 			{
 				"iconPath": "static/progress_default.png",
 				"selectedIconPath": "static/progress.png",
-				"pagePath": "pages/currentProcess/currentProcess",
+				"pagePath": "pages/process/process",
 				"text": "进程"
 			},
 			{

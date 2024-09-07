@@ -1,7 +1,6 @@
 <template>
-  <h2 class="example-info">面试预约</h2>
+  <h2 class="example-info">{{ stageTitle }}</h2>
   <view class="calendar-content" v-if="showCalendar">
-    <!-- 插入模式 -->
     <uni-calendar
       :selected="info.selected"
       :showMonth="false"
@@ -15,14 +14,14 @@
       <view class="button-text">
         <view class="time-slots">
           <view
-            v-for="(slot, index) in timeSlots"
-            :key="index"
+            v-for="(slot, index) in filteredTimeSlots"
+            :key="slot.timeId"
             class="time-slot"
-            :class="{ selected: selectedSlotIndex === index }"
+            :class="{ selected: currentReservationTimeSolt === slot.timeId}"
             @click="reserveSlot(index)"
           >
-            <text>{{ slot.time }}</text>
-            <text>{{ slot.currentBookings }}/{{ slot.maxBookings }}</text>
+            <text>{{ slot.startTime }} - {{ slot.endTime }}</text>
+            <text>{{ slot.capacity - slot.remaining }}/{{ slot.capacity }}</text>
           </view>
         </view>
       </view>
@@ -31,121 +30,213 @@
 </template>
 
 <script>
+import { http } from '@/utils/http';
+
 export default {
   data() {
     return {
-      timeSlots: [
-        { time: "09:00 - 10:00", currentBookings: 0, maxBookings: 2 },
-        { time: "10:00 - 11:00", currentBookings: 0, maxBookings: 2 },
-        { time: "11:00 - 12:00", currentBookings: 0, maxBookings: 2 },
-        { time: "14:00 - 15:00", currentBookings: 0, maxBookings: 2 },
-        { time: "15:00 - 16:00", currentBookings: 0, maxBookings: 2 },
-      ],
+      timeSlots: [], // 请求的时间段
+      filteredTimeSlots: [], // 过滤后的时间段
       showCalendar: false,
+      stageTitle: '',
       info: {
         lunar: true,
         range: true,
         insert: false,
         selected: [],
       },
-      availableDates: [
-        getDate(new Date(), 2).fullDate, // 当前日期加2天
-        getDate(new Date(), 4).fullDate, // 当前日期加4天
-        getDate(new Date(), 6).fullDate, // 当前日期加6天
-      ],
+      availableDates: [], // 可预约日期
       selectedDate: "",
-      selectedSlotIndex: null, // 当前选中的时间段索引
-      bookedSlots: {}, // 用于跟踪每一天的已预约时间段
-      previousSlotIndex: null, // 上一次点击的时间段索引
-    };
+      currentReservationId:uni.getStorageSync('reservation') ,
+      currentReservationTimeSolt:uni.getStorageSync('currentReservationTimeSolt')
+    }
   },
   onReady() {
     this.$nextTick(() => {
       this.showCalendar = true;
-    });
-    this.info.date = getDate(new Date(), -30).fullDate;
-    this.info.startDate = getDate(new Date(), -60).fullDate;
-    this.info.endDate = getDate(new Date(), 30).fullDate;
-    this.info.selected = [
-      {
-        date: getDate(new Date(), 0).fullDate,
-        info: "预约",
-      },
-      {
-        date: getDate(new Date(), 2).fullDate,
-        info: "预约",
-      },
-    ];
+    })
+    this.fetchDetails()
+      .then(details => {
+        const { direction, stageId } = details;
+        this.fetchAppointmentData(direction, stageId);
+      })
+      .catch(error => {
+        console.error('获取阶段和方向失败:', error)
+      })
+    this.info.selected = []
   },
   methods: {
+    fetchDetails() {
+      return http({
+        url: '/user/user',
+        method: 'GET'
+      })
+      .then(response => {
+        let stageTitle = '';
+      switch (response.stageId) {
+        case 1:
+          stageTitle = '面试预约'
+          break;
+        case 2:
+          stageTitle = '一轮预约'
+          break;
+        case 3:
+          stageTitle = '二轮预约'
+          break;
+      }
+      this.stageTitle = stageTitle;
+        return {
+          direction: response.direction,
+          stageId: response.stageId
+        }
+      })
+      .catch(error => {
+        console.error('获取阶段和方向失败:', error);
+      })
+    },
+    fetchAppointmentData(direction, stageId) {
+      uni.showLoading({ title: '正在获取信息...' });
+      return http({
+        url: '/interview/get',
+        data: {
+          stageId: stageId,
+          direction: direction
+        },
+        method: 'GET'
+      })
+      .then(response => {
+        this.timeSlots = response.map(slot => ({
+          ...slot,
+          startTime: slot.startTime.replace('T', ' '),
+          endTime: slot.endTime.replace('T', ' ')
+        }))
+        const uniqueDates = [...new Set(this.timeSlots.map(slot => slot.startTime.split(' ')[0]))]
+        this.availableDates = uniqueDates;
+        this.info.selected = uniqueDates.map(date => ({
+          date: date,
+          info: '可预约'
+        }))
+      })
+      .catch(error => {
+        console.error('获取预约数据失败:', error);
+      })
+      .finally(() => {
+    uni.hideLoading()
+  })
+    },
     handleDateChange(e) {
       const selectedDate = e.fulldate;
       if (this.availableDates.includes(selectedDate)) {
         this.selectedDate = selectedDate;
-        this.$refs.popup.open("bottom");
+        this.filteredTimeSlots = this.timeSlots
+          .filter(slot => slot.startTime.split(' ')[0] === selectedDate);
+        this.info.selected = this.availableDates.map(date => ({
+          date: date,
+          info: date === selectedDate ? '可预约' : '不可预约'
+        }))
+        this.$refs.popup.open("bottom")
       } else {
         uni.showToast({
           title: "此日期不可预约",
           icon: "none",
-        });
+        })
       }
     },
-    handleMonthSwitch(e) {
-      console.log("monthSwitch 返回:", e);
+    cancelReservation(reservationId) {
+      uni.showLoading({ title: '正在取消预约中...' })
+      return http({
+        url: `/interview/cancel/${reservationId}`,
+        method: 'PUT'
+      })
+      .then(response => {
+        this.currentReservationTimeSolt=null
+        this.filteredTimeSlots = this.filteredTimeSlots.map(slot => {
+      if (slot.timeId === this.currentReservationTimeSolt) { 
+        return { ...slot, remaining: slot.remaining +1 }
+      }
+      return slot
+    
+    })
+        uni.showToast({
+          title: "预约已取消",
+          icon: "success",
+        })
+        
+        this.currentReservationId = null
+        this.currentReservationTimeSlot = null
+        uni.removeStorageSync('reservation')
+        uni.removeStorageSync('currentReservationTimeSolt')
+      })
+      .catch(error => {
+        console.error('取消预约失败:', error);
+        uni.showToast({
+          title: "取消预约失败",
+          icon: "none",
+        })
+      })
+      .finally(() => {
+    uni.hideLoading()
+  });
+    },
+    submitReservation(timeId) {
+      uni.showLoading({ title: '正在预约中...' });
+      return http({
+        url: `/interview/${timeId}`,
+        method: 'POST'
+      })
+      .then(response => {
+        uni.setStorageSync('reservation', response.reservationId)
+        uni.setStorageSync('currentReservationTimeSolt', timeId)
+        this.currentReservationId = response.reservationId
+        this.currentReservationTimeSlot= uni.getStorageSync(' currentReservationTimeSolt')
+        this.filteredTimeSlots = this.filteredTimeSlots.map(slot => {
+      if (slot.timeId === timeId) {
+        return { ...slot, remaining: slot.remaining - 1 }
+      }
+      return slot
+    })
+    const reservation = uni.getStorageSync('reservation')
+console.log(reservation)
+        uni.showToast({
+          title: "预约成功",
+          icon: "success",
+        })
+      })
+      .catch(error => {
+        console.log(error)
+        uni.showToast({
+          title:error.data.message+'请先取消预约',
+          icon: "none",
+        })
+      })
+      .finally(() => {
+    uni.hideLoading()
+  })
     },
     reserveSlot(index) {
-      const slot = this.timeSlots[index];
-      if (!slot) {
-        console.error("Invalid slot index:", index);
-        return;
-      }
-
-      const existingSlotIndex = this.bookedSlots[this.selectedDate];
-
-      if (this.previousSlotIndex !== null && this.previousSlotIndex === index) {
-        // 如果是同一个时间段，则取消预约
-        this.cancelReservation(index);
-        this.previousSlotIndex = null; // 重置之前的时间段索引
-        return;
-      }
-
-      // 取消之前的预约
-      if (existingSlotIndex !== undefined && existingSlotIndex !== null) {
-        const previousSlot = this.timeSlots[existingSlotIndex];
-        if (previousSlot) {
-          previousSlot.currentBookings--;
-        }
-        this.bookedSlots[this.selectedDate] = null;
-      }
-
-      // 更新预约
-      if (slot.currentBookings < slot.maxBookings) {
-        slot.currentBookings++;
-        this.bookedSlots[this.selectedDate] = index;
-        uni.showToast({
-          title: "时间段已选择",
-          icon: "success",
-        });
-        this.previousSlotIndex = index; // 记录当前时间段索引
+    const slot = this.filteredTimeSlots[index];
+    if (this.currentReservationId && this.currentReservationTimeSolt === slot.timeId) {
+      // 当前时间段已被预约，进行取消操作
+      this.cancelReservation(this.currentReservationId);
+    } else {
+      // 没有预约，直接进行新的预约
+      if (slot.remaining > 0) {
+        this.submitReservation(slot.timeId)
+          .then(() => {
+            // 设置当前预约的时间段索引
+            this.currentReservationTimeSolt = slot.timeId;
+          });
       } else {
         uni.showToast({
           title: "此时间段已满",
           icon: "none",
-        });
+        })
       }
-    },
+    }
+  }
+  }
+}
 
-    cancelReservation(index) {
-      const slot = this.timeSlots[index];
-      slot.currentBookings--;
-      this.bookedSlots[this.selectedDate] = null;
-      uni.showToast({
-        title: "预约已取消",
-        icon: "success",
-      });
-    },
-  },
-};
 function getDate(date, AddDayCount = 0) {
   if (!date) {
     date = new Date();
@@ -155,12 +246,12 @@ function getDate(date, AddDayCount = 0) {
   }
   const dd = new Date(date);
 
-  dd.setDate(dd.getDate() + AddDayCount); // 获取AddDayCount天后的日期
+  dd.setDate(dd.getDate() + AddDayCount); // 获取 AddDayCount 天后的日期
 
   const y = dd.getFullYear();
   const m =
-    dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1; // 获取当前月份的日期，不足10补0
-  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate(); // 获取当前几号，不足10补0
+    dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1; // 获取当前月份的日期，不足 10 补 0
+  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate(); // 获取当前几号，不足 10 补 0
   return {
     fullDate: y + "-" + m + "-" + d,
     year: y,
@@ -193,7 +284,7 @@ function getDate(date, AddDayCount = 0) {
 }
 
 .time-slots {
-  margin-top: 10px; /* 顶部增加间距 */
+  margin-top: 10px; 
 }
 
 .time-slot {
@@ -202,7 +293,7 @@ function getDate(date, AddDayCount = 0) {
   align-items: center;
   padding: 10px;
   margin: 5px 0;
-  background-color: #f7f7f7;
+  background-color: #f5f1f1;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -210,4 +301,10 @@ function getDate(date, AddDayCount = 0) {
 .time-slot:hover {
   background-color: #eaeaea;
 }
+
+.time-slot.selected {
+  background-color: #a0e0a0; /* 预约成功的样式，例如绿色背景 */
+  color: #fff;
+}
+
 </style>

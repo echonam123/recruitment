@@ -12,7 +12,8 @@
     "axios": "^1.7.5",
     "element-plus": "^2.8.1",
     "vue": "^3.4.37",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "vue-router": "^4.4.3"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.4.12",

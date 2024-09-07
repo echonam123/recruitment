@@ -51,7 +51,7 @@ export const http = <T>(options:UniApp.RequestOptions) => {
 }
 
 //拦截器
-const baseUrl = 'https://39.106.69.15:8081'
+const baseUrl = 'http://39.106.69.15:8081'
 const httpInterceptor = {
   //拦截前触发
   invoke(options) {
@@ -59,7 +59,6 @@ const httpInterceptor = {
     if (!options.url.startsWith('http')) {
       options.url = baseUrl+options.url
     }
-    
     //请求超时，默认为60s
     options.timeout = 10000
     //添加小程序端请求头标识
@@ -71,11 +70,9 @@ const httpInterceptor = {
     let token: string = uni.getStorageSync('token')
     console.log(token)
     if (token) {
-      token = 'Bearer' + ' ' + token
-      console.log(token) 
+      token = 'Bearer' + token  
       options.header.Authorization = token
     }
-    console.log(options)
   }
 }
 uni.addInterceptor('request', httpInterceptor)

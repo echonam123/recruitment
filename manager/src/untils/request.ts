@@ -1,28 +1,23 @@
-import axios from "axios";
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { showMessage } from "./status"; // 引入状态码文件
-import { ElMessage } from "element-plus"; // 引入el 提示框
-// 设置接口超时时间
-axios.defaults.timeout = 60000;
-axios.defaults.baseURL = "/api" || "";  // 自定义接口地址
-
-const token = () => {
-  if (sessionStorage.getItem("token")) {
-    return sessionStorage.getItem("token");
-  } else {
-    return sessionStorage.getItem("token");
-  }
-};
-
+ const axiosInstance: AxiosInstance = axios.create({
+  baseURL: 'http://39.106.69.15:8081/',
+  timeout: 40000,
+}); 
+export default axiosInstance
 //请求拦截
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem("token")
+    if(token){
     // 配置请求头
-    config.headers["Content-Type"] = "application/json;charset=UTF-8";
-    config.headers["token"] = token();
-    return config;
+      config.headers["Content-Type"] = "application/json;charset=UTF-8"
+      config.headers["Authorization"] = token
+    }
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
+  (error: any) => {
+    return Promise.reject(error)
   }
 );
 
@@ -38,29 +33,51 @@ axios.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
-    const { response } = error;
+  (error: { response: any; }) => {
+    const { response } = error
     if (response) {
       // 请求已发出，但是不在2xx的范围
-      showMessage(response.status); // 传入响应码，匹配响应码对应信息
-      return Promise.reject(response.data);
+      showMessage(response.status) // 传入响应码，匹配响应码对应信息
+      return Promise.reject(response.data)
     } else {
-      ElMessage.warning("网络连接异常,请稍后再试!");
+      alert("网络连接异常,请稍后再试!")
     }
   }
 );
-
-// 封装 请求并导出
-export function request(data: any) {
-  return new Promise((resolve, reject) => {
-    const promise = axios(data);
-    //处理返回
-    promise
-      .then((res: any) => {
-        resolve(res.data);
+interface resData<T>{
+  code: number,
+  message: string,
+  data:T
+}
+export function request<T>(data: any) {
+  return new Promise<T>((resolve, reject) => {
+   axiosInstance(data)
+     .then((res: AxiosResponse) => {
+        if ((res.data as resData<T>).code >= 200 && (res.data as resData<T>).code < 300) {
+          resolve((res.data as resData<T>).data)
+        } else if (res.data.data.hasOwnProperty('startTime')) {
+          console.log(showMessage(res.status))
+          reject(res.data.data.startTime)
+        } else {
+          console.log(showMessage(res.status))
+          reject(res.data.message)
+        }
       })
-      .catch((err: any) => {
-        reject(err.data);
-      });
-  });
+     .catch((err) => {
+       if ((err as resData<T>).code == 401) {
+         //清空token
+         if (localStorage.getItem('token')) {
+           localStorage.removeItem('token')
+           ElMessage({
+             showClose: true,
+             message: '请重新登录',
+             type: 'error',
+             duration: 2000
+           })
+         }
+       }
+       console.log(showMessage(err.status))
+        reject(err)
+      })
+  })
 }

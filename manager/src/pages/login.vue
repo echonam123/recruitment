@@ -57,6 +57,11 @@ const handleSubmit = async() => {
     }
   }
 };
+
+// 页面加载时检查登录状态
+// onMounted(() => {
+//   checkLoginStatus()
+// })
 </script>
 
 <style scoped>

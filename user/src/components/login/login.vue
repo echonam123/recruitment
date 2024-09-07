@@ -12,7 +12,7 @@
         <!-- 用户信息区域 -->
         <view class="user-info">
             <text class="user-name">{{ userName }}</text>
-            <text class=".user-description">{{ isLoggedIn ? '欢迎回来' : '登录获取更多详情' }}</text>
+            <text class=".user-description">{{ isLoggedIn ? '欢迎来到CAT' : '登录获取更多详情' }}</text>
         </view>
         <button 
             v-show="!isLoggedIn" 
@@ -59,7 +59,7 @@ const onChooseAvatar = (event: { detail: { avatarUrl: any; }; }) => {
 const validLogin = (code: string) => {
     return new Promise<TokenData>((resolve, reject) => {
         uni.request({
-            url: '/user/login',
+            url: 'http://39.106.69.15:8081/user/login',
             method: 'POST',
             header: {
                 'Content-Type': 'application/json'
@@ -88,6 +88,8 @@ const wxLogin = (loginRes: any) => {
         const { errMsg, code } = loginRes;
         if (errMsg.indexOf('ok') !== -1) {
             validLogin(code).then(data => {
+                console.log(data)
+                
                 uni.setStorageSync('token', data.token); // 存储token
                 resolve(data);
             }).catch(err => {
@@ -104,7 +106,6 @@ const wxLogin = (loginRes: any) => {
     });
 }
 
-//获取登录code
 const login = () => {
     return new Promise((resolve, reject) => {
         uni.login({
@@ -188,30 +189,12 @@ const checkUserAuth = () => {
                 userName.value = storedProfile.userName;
             }
             resolve(userLoginToken);
-        } else {
-            uni.showModal({
-                title: '提示',
-                content: '您尚未登录，是否登录？',
-                success: function(res) {
-                    if (res.confirm) {
-                        uni.switchTab({
-                            url: '/pages/myth/myth',
-                        });
-                    }
-                }
-            });
-        }
+        } 
     });
 }
-
+//
 onMounted(async () => {
-    try {
-        await checkUserAuth(); // 页面加载时检查用户是否已登录
-    } catch (error) {
-        uni.navigateTo({
-            url: '/pages/myth/myth'
-        });
-    }
+    await checkUserAuth()
 });
 </script>
 
@@ -226,16 +209,17 @@ onMounted(async () => {
     background-color: rgb(232, 246, 252);
     border-radius: 10px;
     margin: 10px;
+    margin-top: -50px;
 }
 
 .avatar-wrapper {
-    position: absolute; /* 确保头像位置固定 */
+    position: absolute; 
     height: 70px; 
     width: 70px;  
     border-radius: 50%; 
     margin-right: 10px;
     background-color: #f4f8fb;
-    left: 10px; /* 调整头像的位置 */
+    left: 10px; 
 }
 
 .avatar {
@@ -244,7 +228,7 @@ onMounted(async () => {
     width: 70px;
     border-radius: 50%;
     object-fit: cover;
-    left: -5px;
+    left: 0px;
 }
 
 .user-info {
