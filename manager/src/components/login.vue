@@ -37,6 +37,7 @@ const handleSubmit = async() => {
     // 登录成功
     store.commit('setLoginStatus', true);
     // 重置输入框
+    store.commit('setCurrentAdmin',username.value)
     username.value = '';
     password.value = '';
     localStorage.setItem("token",response.data.data.tokenHead + ' ' + response.data.data.token)

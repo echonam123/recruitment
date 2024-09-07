@@ -1,12 +1,12 @@
 import { createStore } from 'vuex';
 import { CheckApplicants } from '../api/modules/user'; // 替换为实际的 API 函数路径
-import { Applicant } from '../api/base';
-
+import { ElMessageBox } from 'element-plus';
 export default createStore({
   state: {
     rawData: [] , // 或者使用具体的类型
     token: localStorage.getItem('token'), // 你可以在登录时设置这个 token
     isLoggedIn: false,
+    currentAdmin:''
   },
   mutations: {
     setApplicantsData(state:any, data) {
@@ -17,7 +17,17 @@ export default createStore({
     },
     setLoginStatus(state:any, status:boolean) {
       state.isLoggedIn = status;
-    }
+    },
+    setRate(state, { userId, score, comment }) {
+      const user = state.rawData.find(user => user.userId === userId);
+      if (user) {
+        user.score = score;
+        user.comment = comment;
+      }
+    },
+    setCurrentAdmin(state, admin) {
+      state.currentAdmin = admin;
+    },
   },
   actions: {
     async fetchApplicantsData({ commit, state}) {
@@ -28,7 +38,13 @@ export default createStore({
         state.rawData = response.data.data;
         commit('setApplicantsData', response.data.data);
       } catch (error) {
-        console.error('获取报名人员数据失败', error);
+        if (error instanceof Error) {
+          // 处理拦截器中抛出的错误
+          ElMessageBox.alert(`请求错误: ${error.message}`);
+        } else {
+          // 处理其他未知错误
+          ElMessageBox.alert('查询失败，请检查网络或稍后重试');
+        }
       }
     },
   },

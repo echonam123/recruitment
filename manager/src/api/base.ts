@@ -70,4 +70,14 @@ export interface Applicant {
   stageId: number;
   stageName: string;
   out: boolean;
+  score?: number;
+  comment?: string;
 }
+
+// export interface RateResponse {
+//   data: {[
+//     "stageName": "报名",
+//     "adminName": "admin",
+//     "score": 99,
+//     "comment": "你真棒"
+// }

@@ -24,3 +24,14 @@ export const Rate = async(
     )
     return res
 }
+
+export const GetRate = async(token:string,userId:number) => {
+    const res = await request.get("/score" + userId,
+        {
+            headers: {
+                Authorization:token
+            }
+        }
+    );
+    return res;
+}

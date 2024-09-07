@@ -68,6 +68,7 @@
   
   <div style="margin: 20px;">
     <el-button type="danger" @click="openNoticeDialog" style="background-color: skyblue;border:1px solid skyblue">批量通知</el-button>
+    <el-button type="danger" @click="openBatchRateDialog" style="background-color: skyblue;border:1px solid skyblue">批量评价</el-button>
     <el-button type="danger" @click="batchReject">批量淘汰</el-button>
   </div>
   <el-dialog v-model="dialogVisible" title="评价">
@@ -100,6 +101,28 @@
       <el-button type="primary" @click="submitNotice">提交</el-button>
     </span>
   </el-dialog>
+
+  <el-dialog v-model="batchRatedialogVisible" title="評價">
+    <div>
+      <el-input
+      type="number"
+      v-model="batchScore"
+      placeholder="请输入分数"
+      >
+
+      </el-input>
+      <el-input
+        type="textarea"
+        v-model="batchComment"
+        placeholder="请输入評價内容"
+        rows="4"
+      ></el-input>
+    </div>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="batchRatedialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitBatchRate">提交</el-button>
+    </span>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -108,7 +131,7 @@ import { ref, computed } from 'vue';
 import { Applicant } from '../api/base';
 import { BatchOut } from '../api/modules/user';
 import {SendNotice} from '../api/modules/notice';
-import { Rate } from '../api/modules/score';
+import { Rate,GetRate } from '../api/modules/score';
 import {useStore} from 'vuex';
 const store = useStore();
 
@@ -118,8 +141,11 @@ const showAllFilter = ref(false);
 
 const noticedialogVisible = ref(false);
 const dialogVisible = ref(false);
+const batchRatedialogVisible = ref(false);
 const currentRating = ref(0);
+const batchScore = ref(0);
 const currentComment = ref('');
+const batchComment = ref('');
 const currentMessage = ref('');
 const emptyApplicant: Applicant = {
   userId: 0,
@@ -264,10 +290,17 @@ const openDialog = (user: Applicant) => {
 };
 const submitRating = async() => {
   try{
-    const response = await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentComment.value)
+    const response = await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentMessage.value)
     ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentComment.value}`);
     dialogVisible.value = false;
+
+    //empty box
+    currentRating.value = 0;
+    currentMessage.value = '';
   }catch(error){
+    //empty box
+    currentRating.value = 0;
+    currentMessage.value = '';
     if (error instanceof Error) {
       // 处理拦截器中抛出的错误
       ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
@@ -290,7 +323,9 @@ const submitNotice = async() => {
     const response = await SendNotice(passedStudentIds,currentMessage.value,token.value)
     ElMessageBox.alert(`通知已提交: ${currentMessage.value}`);
     noticedialogVisible.value = false;
+    currentMessage.value = '';
   }catch(error){
+    currentMessage.value = '';
     if (error instanceof Error) {
       // 处理拦截器中抛出的错误
       ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
@@ -300,6 +335,79 @@ const submitNotice = async() => {
     }
   }
 };
+const openBatchRateDialog = () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessageBox.alert('请先选择要评价的用户');
+    return;
+  }
+  batchRatedialogVisible.value = true;
+};
+const submitBatchRate = async() => {
+  //step1 初始化批量Rate请求
+  const promises = multipleSelection.value.map(async (selection) => {
+    try{
+    const response = await Rate(token.value,selection.userId,selection.stageId,batchScore.value,batchComment.value)
+    return {
+        userId: selection.userId,
+        success: true,
+      };
+    }catch(error){
+      if (error instanceof Error) {
+        ElMessageBox.alert(`UserId ${selection.userId} 评价失败`, error);
+      }
+      return null;
+    }
+  });
+  //执行所有Rate请求
+  try {
+    // 并发执行所有的请求
+    const results = await Promise.all(promises);
+    
+    // 过滤掉失败的请求（返回 null 的请求）
+    const validResults = results.filter(result => result !== null);
+    console.log('成功处理的评价数量:', validResults.length);
+
+    //empty box
+    batchComment.value = '';
+    batchScore.value = 0;
+    const GetRatePromise = validResults.map(async(result) => {
+      try {
+        const rateResponse = await GetRate(token.value, result.userId);
+        const rateData = rateResponse.data.data.scoreVoList[0];
+
+        // 同步到 Vuex 中
+        store.commit('setRate', {
+          userId: result.userId,
+          score: rateData.score,
+          comment: rateData.comment,
+        });
+
+        return rateData;
+      } catch (error) {
+        if (error instanceof Error) {
+          // 处理拦截器中抛出的错误
+          ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
+        }else{
+          console.warn(`UserId ${result.userId} 的 Rate 数据获取失败`, error);
+        }
+        
+        return null;
+      }
+    });
+    // 批量获取最新 Rate 信息的请求
+    const getRateResults = await Promise.all(GetRatePromise);
+
+    // 过滤掉失败的获取请求
+    const validGetRateResults = getRateResults.filter(result => result !== null);
+
+    console.log('成功获取并同步的 Rate 数据数量:', validGetRateResults.length);
+  } catch (error) {
+    // 处理 Promise.all 本身的错误（如网络问题）
+    console.error('批量请求过程中出现错误', error);
+  }
+
+  fetchData();
+}
 
 // 分页参数
 const currentPage = ref(1);

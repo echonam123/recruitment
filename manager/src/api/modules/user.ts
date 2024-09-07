@@ -4,11 +4,13 @@ import {baseURL} from '../base'
 import {request} from '../base';
 
 export const CheckApplicants = async(Authorization:string,college?:string,major?:string,stageId?:number,isOut?:boolean) => {
-    // if (stageId !== undefined && !Number.isInteger(stageId)) {
-    //     throw new Error('stageId 必须是整数');
-    // }
+    //可选参数也必须传参 晕 :（
+    const Major = major || '';
+    const College = college || '';
+    const StageId = stageId || '';
+    const IsOut = isOut || '';
     const res = await request.post(`${baseURL}/user/select`,
-        {college:college,major:major,stageId:stageId,isOut:isOut},
+        {college:College,major:Major,stageId:StageId,isOut:IsOut},
         {
             headers: {
                 Authorization:Authorization,
@@ -19,9 +21,14 @@ export const CheckApplicants = async(Authorization:string,college?:string,major?
 }
 
 //按姓名、学号搜索对应用户 接口
-export const SelectUser = async(name?:string,studentId?:string) => {
+export const SelectUser = async(token:string,name?:string,studentId?:string) => {
     const res = await request.post('/user/selectUser',
-        {name:name,studentId:studentId}
+        {name:name,studentId:studentId},
+        {
+            headers: {
+                Authorization:token,
+            }
+        }
     )
     return res;
 }

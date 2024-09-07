@@ -21,7 +21,7 @@ export const SetInterview = async(
         if (direction !== undefined && !Number.isInteger(direction)) {
             throw new Error('direction 必须是整数');
         }
-        const res = await request.post(`${baseURL}/interview/set`,
+        const res = await request.post('/interview/set',
             {startTime:startTime,
             endTime:endTime,
             capacity:capacity,

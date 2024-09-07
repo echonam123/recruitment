@@ -33,7 +33,10 @@
       <el-header class="layout-header">
         <el-row type="flex" justify="space-between" align="middle">
           <div class="header-title">管理端</div>
-          <el-button @click="logout" type="text" class="logout-button">退出登录</el-button>
+          <div>
+            <span style="margin-right: 20px">{{currentAdmin}}</span>
+            <el-button @click="logout" type="text" class="logout-button">退出登录</el-button>
+          </div>
         </el-row>
       </el-header>
 
@@ -48,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'; 
+import { ref,computed } from 'vue'; 
 import check from './check.vue';
 import interview from './interview.vue';
 import batch from './batch.vue';
@@ -62,6 +65,10 @@ const isInterview = ref(false);
 const isBatch = ref(false);
 
 const store = useStore();
+
+const currentAdmin = computed(() => {
+  return store.state.currentAdmin; // 引用 Vuex 状态
+});
 
 function showCheck() {
   isCheckVisible.value = true;
