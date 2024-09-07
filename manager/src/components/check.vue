@@ -29,151 +29,130 @@
     />
   </el-select>
   <el-button @click="showAll">Show All</el-button>
-  <el-divider content-position="center">查看报名人员</el-divider>
+  <el-divider content-position="center">报名人员</el-divider>
   <el-table :data="filteredTableData" border style="width: 100%">
-    <el-table-column prop="name" label="Name" width="180" />
-    <el-table-column prop="college" label="College" width="180" />
-    <el-table-column prop="class" label="Class" width="180" />
+    <el-table-column prop="name" label="Name" width="130" />
+    <el-table-column prop="college" label="College" width="130" />
+    <el-table-column prop="className" label="ClassName" width="130" />
     <el-table-column prop="studentId" label="StudentId" width="180" />
-    <el-table-column prop="direction" label="Direction" width="180" />
+    <el-table-column prop="direction" label="Direction" width="130" />
+    <el-table-column prop="stageName" label="StageName" width="130" />
     <el-table-column prop="phone" label="Phone" width="180" />
     <el-table-column prop="introduction" label="Introduction" />
+    <el-table-column prop="out" label="Out" width="130" />
   </el-table>
 </template>
+
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-const selectedFilter = ref('');
-const secondaryFilter = ref('');
-const showAllFilter = ref(false);
-const options = [
+import { ref, computed, onMounted } from 'vue';
+import { request} from '../untils/request';
+interface TableDataItem {
+[x: string]: any;
+  college: string
+  className: string
+  out: string
+  direction: string
+  stageName:string
+}
+const selectedFilter = ref('')
+const secondaryFilter = ref('')
+const showAllFilter = ref(false)
+const filterOptions = ref([
   { value: '学院', label: '学院' },
   { value: '专业', label: '专业' },
   { value: '方向', label: '方向' },
   { value: '进度', label: '进度' },
   { value: '淘汰情况', label: '淘汰情况' },
-];
-const filterOptions = computed(() => options);//一次选择
-const secondaryOptions = ref<any[]>([]);//二次筛选容器
-//过滤去重
+])
+const secondaryOptions = ref<any[]>([])
+const tableData = ref<any[]>([])
+const fetchTableData = async () => {
+  try {
+    const response = await request<TableDataItem>({
+      method: 'POST',
+      url: '/user/select',
+      data: {
+        "college": null,
+        "major": null,
+        "stageId": null,
+        "isOut": null
+      }
+    })
+    response.forEach((item: any) => {
+      tableData.value.push(item);
+    })
+  } catch (error) {
+    console.error('获取数据失败:', error)
+  }
+}
 const filtertype = (filter: string) => {
-  const uniqueValues = new Set<string>();
+  const uniqueValues = new Set<string>()
   tableData.value.forEach(item => {
     if (filter === '学院') {
-      uniqueValues.add(item.college);
+      uniqueValues.add(item.college)
     } else if (filter === '专业') {
-      uniqueValues.add(item.class);
+      uniqueValues.add(item.className)
     } else if (filter === '进度') {
-      uniqueValues.add(item.progress);
+      uniqueValues.add(item.stageName)
     } else if (filter === '淘汰情况') {
-      uniqueValues.add(item.eliminationStatus);
+      uniqueValues.add(item.out);
     } else if (filter === '方向') {
-      uniqueValues.add(item.direction);
+      uniqueValues.add(item.direction)
     }
   });
   return Array.from(uniqueValues).map(value => ({ value, label: value }));
-};
-//更新二次筛选重的选项
+}
+
 const updateSecondaryOptions = () => {
   if (selectedFilter.value) {
     secondaryOptions.value = filtertype(selectedFilter.value);
-    showAllFilter.value = false; // 更新筛选条件时关闭“展示全部”状态
+    showAllFilter.value = false // 更新筛选条件时关闭“展示全部”状态
   } else {
-    secondaryOptions.value = [];
-    showAllFilter.value = false; // 选择的筛选条件为空时，关闭“展示全部”状态
+    secondaryOptions.value = []
+    showAllFilter.value = false// 选择的筛选条件为空时，关闭“展示全部”状态
   }
-};
-//展示所有报名学生
+}
+
 const showAll = () => {
-  selectedFilter.value = '';
-  secondaryFilter.value = '';
-  showAllFilter.value = true;
-};
-const tableData = ref([
-    {
-      name: '张三',
-      college: '计算机学院',
-      class: '软件工程',
-      studentId: '2021001',
-      direction: '前端开发',
-      phone: '12345678901',
-      introduction: '对前端开发非常感兴趣，参与过多个项目。',
-      progress: '已完成',
-      eliminationStatus: '未淘汰'
-    },
-    {
-      name: '李四',
-      college: '计算机学院',
-      class: '人工智能',
-      studentId: '2021002',
-      direction: '机器学习',
-      phone: '12345678902',
-      introduction: '专注于机器学习领域，拥有一定的项目经验。',
-      progress: '进行中',
-      eliminationStatus: '未淘汰'
-    },
-    {
-      name: '王五',
-      college: '经济管理学院',
-      class: '金融学',
-      studentId: '2021003',
-      direction: '金融分析',
-      phone: '12345678903',
-      introduction: '金融分析领域有较强的背景知识。',
-      progress: '已完成',
-      eliminationStatus: '已淘汰'
-    },
-    {
-      name: '赵六',
-      college: '经济管理学院',
-      class: '市场营销',
-      studentId: '2021004',
-      direction: '市场策略',
-      phone: '12345678904',
-      introduction: '对市场策略有深入研究。',
-      progress: '进行中',
-      eliminationStatus: '未淘汰'
-    },
-    {
-      name: '赵六',
-      college: '经济管理学院',
-      class: '市场营销',
-      studentId: '2021004',
-      direction: '市场策略',
-      phone: '12345678904',
-      introduction: '对市场策略有深入研究。',
-      progress: '进行中',
-      eliminationStatus: '未淘汰'
-    }
-  ]);
-//渲染表格内容
+  selectedFilter.value = ''
+  secondaryFilter.value = ''
+  showAllFilter.value = true
+}
+
 const filteredTableData = computed(() => {
   if (showAllFilter.value) {
-    return tableData.value; 
+    return tableData.value;
   }
   
-  // 如果选择了某个筛选条件，则需要根据筛选条件过滤数据
   let data = tableData.value;
   if (selectedFilter.value && secondaryFilter.value) {
     switch (selectedFilter.value) {
       case '学院':
         data = data.filter(item => item.college === secondaryFilter.value);
-        break;
+        break
       case '专业':
-        data = data.filter(item => item.class === secondaryFilter.value);
-        break;
+        data = data.filter(item => item.className === secondaryFilter.value);
+        break
       case '进度':
-        data = data.filter(item => item.progress === secondaryFilter.value);
-        break;
+        data = data.filter(item => item.stageName === secondaryFilter.value);
+        break
       case '淘汰情况':
-        data = data.filter(item => item.eliminationStatus === secondaryFilter.value);
-        break;
+        data = data.filter(item => item.out === secondaryFilter.value);
+        break
       case '方向':
         data = data.filter(item => item.direction === secondaryFilter.value);
-        break;
+        break
       default:
-        break;
+        break
     }
   }
-  return data;
-});
+  return data
+})
+
+// 获取数据
+onMounted(() => {
+  fetchTableData()
+})
 </script>
+
+<style scoped></style>

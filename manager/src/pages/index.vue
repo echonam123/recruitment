@@ -41,10 +41,10 @@ function showCheck() {
   router.push('/check') 
 }
 function showInterview() {
-  router.push('interview') 
+  router.push('/interview') 
 }
 function showStage() {
-  router.push('stage')
+  router.push('/stage')
 }
 </script>
 
