@@ -9,8 +9,8 @@
               <el-icon><message /></el-icon>报名人员
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1">查看报名人员</el-menu-item>
-              <el-menu-item index="1-2" @click="showCheck">筛选报名人员</el-menu-item>
+              <el-menu-item index="1-1" @click="showCheck">查看报名人员</el-menu-item>
+              <el-menu-item index="1-2" @click="showBatch">批量操作</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
           <el-sub-menu index="2">
@@ -26,6 +26,16 @@
       </el-scrollbar>
     </el-aside>
     <el-container>
+      <!-- 顶部导航栏 -->
+      <el-header class="layout-header">
+        <el-row type="flex" justify="space-between" align="middle">
+          <div class="header-title">管理端</div>
+          <div>
+            <span style="margin-right: 20px">{{currentAdmin}}</span>
+            <el-button @click="logout" type="text" class="logout-button">退出登录</el-button>
+          </div>
+        </el-row>
+      </el-header>
       <el-main>
         <RouterView></RouterView>
       </el-main>
@@ -35,10 +45,41 @@
 
 <script lang="ts" setup>
 import { RouterView ,useRouter} from 'vue-router'
+import { ref,computed } from 'vue'; 
+import {useStore} from 'vuex'
+import { ElMessage } from 'element-plus';
+
+const store = useStore();
+
+const currentAdmin = computed(() => {
+  return store.state.currentAdmin; // 引用 Vuex 状态
+});
+
+function logout() {
+  // 退出登录逻辑
+  // 清除登录状态
+  localStorage.removeItem('token');
+  // 路由跳转 待配置
+  // window.location.href = '/login';
+  store.commit("setLoginStatus",false)
+  ElMessage.success('退出登录成功');
+
+}
+/**
+ * 若使用路由，利用生命周期更新数据
+ */
+const fetchData = async () => {
+  await store.dispatch('fetchApplicantsData');
+};
+
+/*************/
 const router = useRouter()
 
 function showCheck() {
   router.push('/check') 
+}
+function showBatch(){
+  router.push('/batch')
 }
 function showInterview() {
   router.push('/interview') 

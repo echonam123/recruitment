@@ -1,16 +1,21 @@
 import {createRouter,createWebHashHistory} from 'vue-router'
 import check from '../components/check.vue'
+import batch from '../components/batch.vue'
 import interview from '../components/interview.vue'
 import stage from '../components/stage.vue'
 
 const routes = [
-		{
-			path:'/check',
-			component:check
-		},
-		{
-			path:'/interview',
-			component:interview
+	{
+		path:'/check',
+		component:check
+	},
+	{
+		path:'/batch',
+		component:batch
+	},
+	{
+		path:'/interview',
+		component:interview
     },
     {
       path:'/stage',

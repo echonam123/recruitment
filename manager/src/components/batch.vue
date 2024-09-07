@@ -127,13 +127,17 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus';
-import { ref, computed } from 'vue';
+import { ref, computed,onMounted } from 'vue';
 import { Applicant } from '../api/base';
 import { BatchOut } from '../api/modules/user';
 import {SendNotice} from '../api/modules/notice';
 import { Rate,GetRate } from '../api/modules/score';
 import {useStore} from 'vuex';
 const store = useStore();
+
+onMounted(() => {
+  fetchData();
+});
 
 const selectedFilter = ref('');
 const secondaryFilter = ref('');
@@ -320,8 +324,8 @@ const openNoticeDialog = () => {
 const submitNotice = async() => {
   try{
     const passedStudentIds = multipleSelection.value.map(item => item.phone);
-    const response = await SendNotice(passedStudentIds,currentMessage.value,token.value)
-    ElMessageBox.alert(`通知已提交: ${currentMessage.value}`);
+    const response = await SendNotice(passedStudentIds,currentComment.value,token.value)
+    ElMessageBox.alert(`通知已提交: ${currentComment.value}`);
     noticedialogVisible.value = false;
     currentMessage.value = '';
   }catch(error){

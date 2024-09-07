@@ -36,13 +36,15 @@
 
 <script lang="ts" setup>
 // import { ElMessageBox, ElDialog, ElMessage } from 'element-plus';
-import { ref, computed } from 'vue';
-// import { Applicant } from '../api/base';
-// import { onMounted } from 'vue';
+import { ref, computed,onMounted } from 'vue';
 import { SelectUser } from '../api/modules/user';
 import 'element-plus/dist/index.css';
 import store from '../store';
 import { ElMessageBox,ElMessage } from 'element-plus';
+
+onMounted(() => {
+  fetchData();
+});
 
 const username = ref('');
 const studentId = ref('');
