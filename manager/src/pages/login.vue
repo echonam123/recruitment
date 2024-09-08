@@ -41,6 +41,7 @@ const handleSubmit = async() => {
     username.value = '';
     password.value = '';
     localStorage.setItem("token",response.data.data.tokenHead + ' ' + response.data.data.token)
+    store.commit('setToken',localStorage.getItem("token"))
     console.log(response.data.data.token)
     ElMessageBox.alert('登录成功', '成功', {
       confirmButtonText: '确定',
