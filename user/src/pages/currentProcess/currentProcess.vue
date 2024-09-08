@@ -212,11 +212,13 @@ async function getStage() {
 			isPull.value = false
 		}
 	} catch (err) {
-		uni.showToast({
-			icon: 'none',
-			title:'网络错误'
-		})
-		console.log('出错了',err)
+		if (err !== 'token失效，请重新登录') {
+			uni.showToast({
+				icon: 'none',
+				title: '网络错误'
+			})
+		} 
+		console.log('出错了', err)
 	}
 }
 

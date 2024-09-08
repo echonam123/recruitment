@@ -144,17 +144,19 @@ async function checkValid() {
   // //发送请求
   try {
     await http({
-    url: '/user/info',
-    method: 'POST',
-    data:signInfo.value
+      url: '/user/info',
+      method: 'POST',
+      data:signInfo.value
     })
     emit('signIn')
   } catch (err){
-    uni.showToast({
-			icon: 'none',
-			title:'网络错误'
-		})
-		console.log('出错了',err)
+    if (err !== 'token失效，请重新登录') {
+			uni.showToast({
+				icon: 'none',
+				title: '网络错误'
+			})
+		} 
+		console.log('出错了', err)
   }
 }
 function submit() {
@@ -166,7 +168,6 @@ function submit() {
 <style scoped lang="less">
   .form{
     margin: 20rpx auto;
-    /* padding: 10rpx; */
     width: 90%;
     background-color: #fff;
     border-radius: 1.5%;

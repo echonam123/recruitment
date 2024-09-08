@@ -4,6 +4,7 @@ interface Data<T>{
   message: string,
   data:T
 }
+// interface 
 
 //封装http请求
 export const http = <T>(options:UniApp.RequestOptions) => {
@@ -28,22 +29,14 @@ export const http = <T>(options:UniApp.RequestOptions) => {
                 }
               }
             });
-          reject(res)
+          reject('token失效，请重新登录')
         } else {
           //其他错误
-          uni.showToast({
-            icon: 'none',
-            title: (res.data as Data<T>).message || '请求失败'
-          })
-          reject(res)
+          reject((res.data as Data<T>).message || '请求失败')
         }
       },
       //响应失败
       fail(err) {
-        uni.showToast({
-          icon: 'none',
-          title:'网络错误'
-        })
         reject(err)
       }
     })

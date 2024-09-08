@@ -60,7 +60,7 @@ export function request<T>(data: any) {
           reject(res.data.data.startTime)
         } else {
           console.log(showMessage(res.status))
-          reject(res.data.message)
+          reject('网络错误')
         }
       })
      .catch((err) => {
@@ -68,16 +68,12 @@ export function request<T>(data: any) {
          //清空token
          if (localStorage.getItem('token')) {
            localStorage.removeItem('token')
-           ElMessage({
-             showClose: true,
-             message: '请重新登录',
-             type: 'error',
-             duration: 2000
-           })
+           reject('token已过期，请重新登录')
          }
+       } else {
+          console.log(showMessage(err.status))
+          reject('网络错误')
        }
-       console.log(showMessage(err.status))
-        reject(err)
       })
   })
 }

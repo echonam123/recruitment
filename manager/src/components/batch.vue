@@ -293,7 +293,7 @@ const openDialog = (user: Applicant) => {
   dialogVisible.value = true;
 };
 const submitRating = async() => {
-  try{
+  try {
     await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentMessage.value)
     ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentComment.value}`);
     dialogVisible.value = false;
