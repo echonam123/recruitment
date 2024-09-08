@@ -43,12 +43,16 @@
       </view>
     </view>
     <view class="form-item">
-      <view class="form-label"></view>
+      <view class="form-label">考核方向</view>
       <view class="form_content">
-        <!-- <select v-model="signInfo.direction">
-          <option value="1">前端</option>
-          <option value="2">后台</option>
-        </select> -->
+        <radio-group style="display: flex;" @change="changeRadio">
+          <label class="uni-list-cell uni-list-cell-pd" v-for="(item, index) in radioItems" :key="item.value" style="display: flex; margin-right: 40rpx;">
+            <view>
+              <radio :value="item.value" :checked="index==0" />
+            </view>
+            <view>{{item.name}}</view>
+          </label>
+			</radio-group>
       </view>
     </view>
     <view class="form-item" style="flex-direction: column; align-items: start;">
@@ -69,6 +73,21 @@
 import { ref } from 'vue'
 import { http } from '@/utils/http'
 const emit = defineEmits(['signIn'])
+
+//收集方向信息
+let radioItems = ref(
+  [{
+  name: '前端',
+  value: '1'
+  },
+  {
+  name: '后台',
+  value:'2'
+  }]
+)
+function changeRadio(e) {
+  signInfo.value.direction = Number(e.detail.value)
+}
 
 let signInfo = ref({
   college: '',
@@ -122,7 +141,7 @@ async function checkValid() {
       return
     }
   }
-  //发送请求
+  // //发送请求
   try {
     await http({
     url: '/user/info',

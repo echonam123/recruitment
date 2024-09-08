@@ -12,7 +12,7 @@
       </view>
     </view>
     <view class="applyBox">
-      <signForm v-if="!activeIndex" @signIn="isSignin"/>
+      <signForm  v-if="!activeIndex" @signIn="isSignin"/>
       <successSign v-else/>
     </view>
   </view>
@@ -48,7 +48,11 @@ isSignin()
     background-color: #cbfdd8;
   }
   .applyed{
-    height: 100vh;
+    padding: 0;
+    margin: 0;
+    height:100vh;
+    overflow: hidden;
+    background-color: #fff;
   }
   .timeline{
     padding-top: 20rpx;
