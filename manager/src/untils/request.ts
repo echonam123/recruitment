@@ -58,22 +58,21 @@ export function request<T>(data: any) {
         } else if (res.data.data.hasOwnProperty('startTime')) {
           console.log(showMessage(res.status))
           reject(res.data.data.startTime)
+        } else if ((res.data as resData<T>).code == 401) { 
+          console.log(showMessage(res.status))
+          if (localStorage.getItem('token')) {
+           localStorage.removeItem('token')
+            reject('token已过期，请刷新页面，重新登录')
+          }
         } else {
           console.log(showMessage(res.status))
           reject('网络错误')
         }
       })
      .catch((err) => {
-       if ((err as resData<T>).code == 401) {
-         //清空token
-         if (localStorage.getItem('token')) {
-           localStorage.removeItem('token')
-           reject('token已过期，请重新登录')
-         }
-       } else {
-          console.log(showMessage(err.status))
-          reject('网络错误')
-       }
+        console.log(err)
+        console.log(showMessage(err.status))
+        reject('网络错误')
       })
   })
 }
