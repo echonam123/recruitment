@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref , onMounted } from 'vue';
 import Index from './index.vue';
 import { ElMessageBox} from 'element-plus';
 import { Login } from '../api/modules/login';
@@ -41,6 +41,7 @@ const handleSubmit = async() => {
     username.value = '';
     password.value = '';
     localStorage.setItem("token",response.data.data.tokenHead + ' ' + response.data.data.token)
+    store.commit('setToken',localStorage.getItem("token"))
     console.log(response.data.data.token)
     ElMessageBox.alert('登录成功', '成功', {
       confirmButtonText: '确定',
@@ -58,10 +59,16 @@ const handleSubmit = async() => {
   }
 };
 
-// 页面加载时检查登录状态
-// onMounted(() => {
-//   checkLoginStatus()
-// })
+//页面加载时检查登录状态
+onMounted(() => {
+  checkLoginStatus()
+})
+const checkLoginStatus = () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    store.commit('setLoginStatus', true);
+  }
+}
 </script>
 
 <style scoped>

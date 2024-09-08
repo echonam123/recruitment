@@ -382,8 +382,7 @@ const submitBatchRate = async() => {
         // 同步到 Vuex 中
         store.commit('setRate', {
           userId: result.userId,
-          score: rateData.score,
-          comment: rateData.comment,
+          score: rateData,
         });
 
         return rateData;

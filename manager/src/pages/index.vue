@@ -65,13 +65,6 @@ function logout() {
   ElMessage.success('退出登录成功');
 
 }
-/**
- * 若使用路由，利用生命周期更新数据
- */
-// const fetchData = async () => {
-//   await store.dispatch('fetchApplicantsData');
-// };
-
 /*************/
 const router = useRouter()
 
