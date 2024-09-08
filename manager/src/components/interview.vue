@@ -65,7 +65,7 @@
       </div>
     </el-dialog>
    <!-- 表格部分 -->
-<el-table :data="appointments" v-loading="loading"  style="width: 100%">
+   <el-table :data="appointments" v-loading="loading" style="width: 100%">
   <el-table-column prop="startTime" label="预约开始时间"></el-table-column>
   <el-table-column prop="endTime" label="预约结束时间"></el-table-column>
   <el-table-column label="预约人数情况">
@@ -74,25 +74,70 @@
     </template>
   </el-table-column>
   <el-table-column label="预约用户信息">
-  <template v-slot="scope">
-    <el-button @click="showUserDetails(scope.row.timeId)">
-     点击查看详情
-    </el-button>
-  </template>
-</el-table-column>
-  <el-table-column label="操作" width="100">
     <template v-slot="scope">
-      <el-button
-        type="danger"
-        size="small"
-        @click="deleteAppointment(scope.row.timeId)"
-      >
-        删除
+      <el-button @click="showUserDetails(scope.row.timeId)">
+        点击查看详情
       </el-button>
+    </template>
+  </el-table-column>
+  <el-table-column label="操作" width="200">
+    <template v-slot="scope">
+      <div style="display: flex; gap: 10px; justify-content: flex-start;">
+        <el-button
+          type="primary"
+          size="small"
+          @click="editAppointment(scope.row)"
+        >
+          修改
+        </el-button>
+        <el-button
+          type="danger"
+          size="small"
+          @click="deleteAppointment(scope.row.timeId)"
+        >
+          删除
+        </el-button>
+      </div>
     </template>
   </el-table-column>
 </el-table>
 </div>
+<el-dialog
+  :append-to-body="true"
+  title="修改预约时间"
+  width="30%"
+  v-model="editDialog"
+  style="height: 300px"
+>
+  <el-form>
+    <el-form-item label="预约开始时间">
+      <el-date-picker
+        v-model="editForm.startTime"
+        type="datetime"
+        placeholder="选择预约开始时间"
+      ></el-date-picker>
+    </el-form-item>
+    <el-form-item label="预约结束时间">
+      <el-date-picker
+        v-model="editForm.endTime"
+        type="datetime"
+        placeholder="选择预约结束时间"
+      ></el-date-picker>
+    </el-form-item>
+    <el-form-item label="预约人数">
+      <el-input
+        v-model.number="editForm.capacity"
+        type="number"
+        placeholder="输入预约人数"
+        style="width: 220px; margin-left: 12px"
+      ></el-input>
+    </el-form-item>
+  </el-form>
+  <div slot="footer">
+    <el-button @click="editDialog = false">取消</el-button>
+    <el-button type="primary" @click="updateAppointment">确定</el-button>
+</div>
+</el-dialog>
 <el-dialog
   :append-to-body="true"
   title="用户详细信息"
@@ -154,7 +199,58 @@ const appointments = ref<Appointment[]>([]);
 const showDialog = ref(false)
 const userDetails = ref<any[]>([])
 const userDetailsDialog = ref(false)
+const editDialog = ref(false);
+const editForm = ref({
+  startTime: '',
+  endTime: '',
+  capacity: 0,
+  timeId: ''
+});
 
+function editAppointment(appointment: Appointment) {
+  editForm.value = { ...appointment, timeId: appointment.timeId }
+  editDialog.value = true
+}
+
+async function updateAppointment() {
+  if (
+    editForm.value.startTime &&
+    editForm.value.endTime &&
+    editForm.value.capacity > 0 &&
+    new Date(editForm.value.startTime) < new Date(editForm.value.endTime)
+  ) {
+    const startTimeDate = new Date(editForm.value.startTime);
+    const endTimeDate = new Date(editForm.value.endTime);
+    const formattedStartTime = formatDate(startTimeDate);
+    const formattedEndTime = formatDate(endTimeDate);
+    const requestData = {
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      capacity: editForm.value.capacity,
+      stageId: form.value.stageid,
+      direction:form.value.direction,
+      timeId: editForm.value.timeId,
+    }
+    loading.value = true
+    try {
+      await request({
+        method: 'PUT',
+        url: '/interview/modify',
+        data: requestData
+      })
+      editDialog.value = false
+      alert('修改预约时间成功！')
+    loading.value = false
+      getInterview()
+    } catch (error) {
+      alert('修改预约时间失败')
+      editDialog.value = false
+    loading.value = false
+    }
+  } else {
+    alert('请填写所有字段，并确保开始时间早于结束时间')
+  }
+}
 async function showUserDetails(timeId: string) {
   const users = await getUserDetails(timeId)
   userDetails.value = users.map((item: any) => ({
