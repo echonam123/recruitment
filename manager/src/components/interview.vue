@@ -198,7 +198,7 @@ async function addAppointment() {
       stageId: form.value.stageid,
       direction: form.value.direction
     }
-
+    loading.value=true
     try {
       await request({
         method: 'POST',
@@ -209,10 +209,10 @@ async function addAppointment() {
         form.value.endTime = ''
         form.value.capacity = 0
         showDialog.value = false
-        await getInterview();
+        getInterview()
         alert('添加预约时间成功！')
     } catch (error) {
-      console.error('添加预约失败:', error)
+      alert('添加预约失败')
     }
   } else {
     alert('请填写所有字段，并确保开始时间早于结束时间')
@@ -237,7 +237,7 @@ async function getInterview() {
       appointments.value = response.map((item: { timeId: any; startTime: string; endTime: string; capacity: any; remaining: any; name: any; }) => ({
         timeId: item.timeId,
         startTime: item.startTime.replace('T', ' '),
-          endTime: item.endTime.replace('T', ' '),
+        endTime: item.endTime.replace('T', ' '),
         capacity: item.capacity,
         remaining: item.remaining,
         name: item.name
@@ -252,20 +252,17 @@ async function getInterview() {
 }
 //删除预约时间
 async function deleteAppointment(timeId: string) {
-  console.log(timeId)
+  loading.value = true
   try {
-    const response = await request({
+     await request({
       method: 'DELETE',
       url: `/interview/${timeId}`,
     })
-    if (response) {
-      await getInterview()
+    loading.value = false
+     getInterview()
       alert('删除成功')
-    } else {
-      alert('删除失败，请稍后再试')
-    }
   } catch (error) {
-    console.error('删除失败:', error)
+    alert('删除失败')
   }
 }
 //获取预约了改时间的所有用户信息
@@ -287,8 +284,5 @@ async function getUserDetails(timeId: string) {
     return []
   }
 }
-
 </script>
-
-
 <style scoped></style>
