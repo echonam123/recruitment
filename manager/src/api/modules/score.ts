@@ -24,7 +24,7 @@ export const Rate = async(
 }
 
 export const GetRate = async(token:string,userId:number) => {
-    const res = await request.get("/score" + userId,
+    const res = await request.get("/score/" + userId,
         {
             headers: {
                 Authorization:token

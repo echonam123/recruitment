@@ -71,13 +71,5 @@ export interface Applicant {
   stageName: string;
   out: boolean;
   score?: number;
-  comment?: string;
+  comment?: string;//不用
 }
-
-// export interface RateResponse {
-//   data: {[
-//     "stageName": "报名",
-//     "adminName": "admin",
-//     "score": 99,
-//     "comment": "你真棒"
-// }

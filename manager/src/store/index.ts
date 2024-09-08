@@ -18,11 +18,11 @@ export default createStore({
     setLoginStatus(state:any, status:boolean) {
       state.isLoggedIn = status;
     },
-    setRate(state, { userId, score, comment }) {
+    setRate(state, { userId, score }) {
       const user = state.rawData.find((user:any) => user.userId === userId);
       if (user) {
         user.score = score;
-        user.comment = comment;
+        
       }
     },
     setCurrentAdmin(state, admin) {
