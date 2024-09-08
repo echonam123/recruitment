@@ -19,7 +19,7 @@ export default createStore({
       state.isLoggedIn = status;
     },
     setRate(state, { userId, score, comment }) {
-      const user = state.rawData.find(user => user.userId === userId);
+      const user = state.rawData.find((user:any) => user.userId === userId);
       if (user) {
         user.score = score;
         user.comment = comment;

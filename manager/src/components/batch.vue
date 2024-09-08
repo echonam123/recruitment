@@ -181,7 +181,7 @@ const secondaryOptions = ref<any[]>([]);
 
 const filtertype = (filter: string) => {
 const uniqueValues = new Set<string>();
-tableData.value.forEach(item => {
+tableData.value.forEach((item:any) => {
   if (filter === '学院') {
     uniqueValues.add(item.college);
   } else if (filter === '专业') {
@@ -232,7 +232,7 @@ const token = computed(() => {
 });
 
 const tableData = computed(() =>
-rawData.value.map(item => ({
+rawData.value.map((item:any) => ({
   ...item,
   direction: getDirectionText(item.direction),
 }))
@@ -247,10 +247,10 @@ let data = tableData.value;
 if (selectedFilter.value && secondaryFilter.value) {
   switch (selectedFilter.value) {
   case '学院':
-      data = data.filter(item => item.college === secondaryFilter.value);
+      data = data.filter((item:any) => item.college === secondaryFilter.value);
       break;
   case '方向':
-      data = data.filter(item => item.direction === secondaryFilter.value);
+      data = data.filter((item:any) => item.direction === secondaryFilter.value);
       break;
   default:
       break;
@@ -273,7 +273,7 @@ const batchReject = async() => {
   }
   try{
     const passedStudentIds = multipleSelection.value.map(item => item.userId);
-    const response = await BatchOut(store.state.token,passedStudentIds)
+    await BatchOut(store.state.token,passedStudentIds)
     fetchData();
     ElMessageBox.alert(`淘汰的用户ID有: ${passedStudentIds.join(', ')}`);
   }catch(error){
@@ -294,7 +294,7 @@ const openDialog = (user: Applicant) => {
 };
 const submitRating = async() => {
   try{
-    const response = await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentMessage.value)
+    await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentMessage.value)
     ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentComment.value}`);
     dialogVisible.value = false;
 
@@ -324,7 +324,7 @@ const openNoticeDialog = () => {
 const submitNotice = async() => {
   try{
     const passedStudentIds = multipleSelection.value.map(item => item.phone);
-    const response = await SendNotice(passedStudentIds,currentComment.value,token.value)
+    await SendNotice(passedStudentIds,currentComment.value,token.value)
     ElMessageBox.alert(`通知已提交: ${currentComment.value}`);
     noticedialogVisible.value = false;
     currentMessage.value = '';
@@ -350,7 +350,7 @@ const submitBatchRate = async() => {
   //step1 初始化批量Rate请求
   const promises = multipleSelection.value.map(async (selection) => {
     try{
-    const response = await Rate(token.value,selection.userId,selection.stageId,batchScore.value,batchComment.value)
+    await Rate(token.value,selection.userId,selection.stageId,batchScore.value,batchComment.value)
     return {
         userId: selection.userId,
         success: true,

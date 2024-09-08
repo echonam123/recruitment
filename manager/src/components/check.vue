@@ -77,7 +77,7 @@ const token = computed(() => {
 //     out: false,
 //   }]);
 const tableData = computed(() =>
-  rawData.value.map(item => ({
+  rawData.value.map((item:any) => ({
     ...item,
     direction: getDirectionText(item.direction),
     out: item.out ? '是' : '否',

@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
 import { RouterView ,useRouter} from 'vue-router'
-import { ref,computed } from 'vue'; 
+import { computed } from 'vue'; 
 import {useStore} from 'vuex'
 import { ElMessage } from 'element-plus';
 
@@ -68,9 +68,9 @@ function logout() {
 /**
  * 若使用路由，利用生命周期更新数据
  */
-const fetchData = async () => {
-  await store.dispatch('fetchApplicantsData');
-};
+// const fetchData = async () => {
+//   await store.dispatch('fetchApplicantsData');
+// };
 
 /*************/
 const router = useRouter()
