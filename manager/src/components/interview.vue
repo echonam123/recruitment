@@ -2,27 +2,23 @@
   <div>
     <el-divider content-position="center">预约管理</el-divider>
     <el-row>
-      <el-col :span="3">
-        <el-form-item label="预约方向" style="margin-bottom: 0;">
-          <el-select v-model="form.direction" placeholder="选择预约方向" style="width: 100px;">
+      <el-col :span="1.5">
+          <el-select v-model="form.direction" placeholder="预约方向" style="width: 120px;">
             <el-option label="前端" value="1"></el-option>
             <el-option label="后端" value="2"></el-option>
           </el-select>
-        </el-form-item>
       </el-col>
-      <el-col :span="3">
-        <el-form-item label="预约阶段" style="margin-bottom: 0;">
-          <el-select v-model="form.stageid" placeholder="选择预约阶段" style="width: 100px;">
+      <el-col :span="2">
+          <el-select v-model="form.stageid" placeholder="预约阶段" style="width: 120px;">
             <el-option label="面试" value="1"></el-option>
             <el-option label="一轮" value="2"></el-option>
             <el-option label="二轮" value="3"></el-option>
           </el-select>
-        </el-form-item>
       </el-col>
-      <el-col :span="3" style="text-align:center;">
+      <el-col :span="2" style="text-align:center;">
         <el-button type="primary" @click="showDialog = true">添加预约时间</el-button>
       </el-col>
-      <el-col :span="3" style="text-align:left;">
+      <el-col :span="1" style="text-align:left;">
         <el-button type="primary" @click="getInterview()">展示对应预约情况</el-button>
       </el-col>
     </el-row>
@@ -164,36 +160,36 @@ const loading = ref(false);
 interface InterviewResponse {
   [x: string]: any
   startTime: string
-  endTime: string;
-  capacity: number;
-  name: string;
-  timeId: string; 
+  endTime: string
+  capacity: number
+  name: string
+  timeId: string
 }
 
 interface Appointment {
-  timeId: string; 
-  startTime: string;
-  endTime: string;
-  capacity: number;
-  remaining: number;
-  name: string;
+  timeId: string
+  startTime: string
+  endTime: string
+  capacity: number
+  remaining: number
+  name: string
 }
 interface usersInfo{
-[x: string]: any;
-  college: string,
-  major:string,
-   className: string,
-      name: string,
-      studentId: string,
-      phone: string,
+[x: string]: any
+  college: string
+  major:string
+   className: string
+      name: string
+      studentId: string
+      phone: string
       introduction: string
 }
 const form = ref({
   startTime: '',
   endTime: '',
   capacity: 0,
-  stageid: -1,
-  direction: -1
+  stageid:null as number | null,
+  direction: null as number | null,
 });
 const appointments = ref<Appointment[]>([]);
 const showDialog = ref(false)
@@ -205,13 +201,11 @@ const editForm = ref({
   endTime: '',
   capacity: 0,
   timeId: ''
-});
-
+})
 function editAppointment(appointment: Appointment) {
   editForm.value = { ...appointment, timeId: appointment.timeId }
   editDialog.value = true
 }
-
 async function updateAppointment() {
   if (
     editForm.value.startTime &&
@@ -240,11 +234,9 @@ async function updateAppointment() {
       })
       editDialog.value = false
       alert('修改预约时间成功！')
-    loading.value = false
       getInterview()
     } catch (error) {
       alert('修改预约时间失败')
-      editDialog.value = false
     loading.value = false
     }
   } else {
@@ -279,7 +271,6 @@ async function addAppointment() {
     form.value.startTime &&
     form.value.endTime &&
     form.value.capacity > 0 &&
-    form.value.stageid >= 0 &&
     new Date(form.value.startTime) < new Date(form.value.endTime)
   ) {
     const startTimeDate = new Date(form.value.startTime);
@@ -313,6 +304,7 @@ async function addAppointment() {
   } else {
     alert('请填写所有字段，并确保开始时间早于结束时间')
   }
+  loading.value=false
 }
 //获取预约时间段和人数
 async function getInterview() {
@@ -328,7 +320,7 @@ async function getInterview() {
       params: requestData
     }) as {
 [x: string]: any; data: InterviewResponse[] 
-};
+}
     if (response) {
       appointments.value = response.map((item: { timeId: any; startTime: string; endTime: string; capacity: any; remaining: any; name: any; }) => ({
         timeId: item.timeId,
@@ -338,13 +330,13 @@ async function getInterview() {
         remaining: item.remaining,
         name: item.name
       }))
-    loading.value = false
     } else {
       appointments.value = []
     }
   } catch (error) {
     console.error('获取数据失败:', error)
   }
+  loading.value = false
 }
 //删除预约时间
 async function deleteAppointment(timeId: string) {
@@ -354,19 +346,19 @@ async function deleteAppointment(timeId: string) {
       method: 'DELETE',
       url: `/interview/${timeId}`,
     })
-    loading.value = false
      getInterview()
       alert('删除成功')
   } catch (error) {
     alert('删除失败')
   }
+  loading.value = false
 }
 //获取预约了改时间的所有用户信息
 async function getUserDetails(timeId: string) {
   try {
     const response = await request({
       method: 'GET',
-      url: `/interview/${timeId}`,
+      url: `/interview/${timeId}`
     })as usersInfo
     if (response) {
       userDetails.value=[]
