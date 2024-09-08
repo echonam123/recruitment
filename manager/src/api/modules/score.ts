@@ -1,6 +1,4 @@
 //score接口
-import {baseURL} from '../base'
-
 import {request} from '../base';
 
 export const Rate = async(

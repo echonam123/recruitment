@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { computed, ref , onMounted } from 'vue';
 import Index from './index.vue';
-import { ElMessageBox,ElMessage} from 'element-plus';
+import { ElMessageBox} from 'element-plus';
 import { Login } from '../api/modules/login';
 import {useStore} from 'vuex';
 const store = useStore();

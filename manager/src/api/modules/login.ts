@@ -1,6 +1,4 @@
 //登录接口
-import {baseURL} from '../base'
-
 import {request} from '../base';
 
 export const Login = async(username:string,password:string) => {
