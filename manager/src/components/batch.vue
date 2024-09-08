@@ -273,7 +273,7 @@ const batchReject = async() => {
   }
   try{
     const passedStudentIds = multipleSelection.value.map(item => item.userId);
-    const response = await BatchOut(store.state.token,passedStudentIds)
+    await BatchOut(store.state.token,passedStudentIds)
     fetchData();
     ElMessageBox.alert(`淘汰的用户ID有: ${passedStudentIds.join(', ')}`);
   }catch(error){
@@ -324,7 +324,7 @@ const openNoticeDialog = () => {
 const submitNotice = async() => {
   try{
     const passedStudentIds = multipleSelection.value.map(item => item.phone);
-    const response = await SendNotice(passedStudentIds,currentComment.value,token.value)
+    await SendNotice(passedStudentIds,currentComment.value,token.value)
     ElMessageBox.alert(`通知已提交: ${currentComment.value}`);
     noticedialogVisible.value = false;
     currentMessage.value = '';
