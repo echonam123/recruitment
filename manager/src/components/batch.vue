@@ -208,9 +208,9 @@ if (selectedFilter.value) {
 };
 
 const showAll = () => {
-selectedFilter.value = '';
-secondaryFilter.value = '';
-showAllFilter.value = true;
+  selectedFilter.value = '';
+  secondaryFilter.value = '';
+  showAllFilter.value = true;
 };
 // 计算属性，将 direction 数字转换为对应的文字
 const getDirectionText = (direction: number): string => {
@@ -295,9 +295,8 @@ const openDialog = (user: Applicant) => {
 const submitRating = async() => {
   try {
     await Rate(token.value,currentUser.value.userId,currentUser.value.stageId,currentRating.value,currentMessage.value)
-    ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentComment.value}`);
+    ElMessageBox.alert(`评价已提交: ${currentRating.value} 分，内容: ${currentMessage.value}`);
     dialogVisible.value = false;
-
     //empty box
     currentRating.value = 0;
     currentMessage.value = '';
@@ -307,10 +306,10 @@ const submitRating = async() => {
     currentMessage.value = '';
     if (error instanceof Error) {
       // 处理拦截器中抛出的错误
-      ElMessageBox.alert(`提交通知失败。错误信息: ${error.message}`);
+      ElMessageBox.alert(`提交评价失败。错误信息: ${error.message}`);
     } else {
       // 处理其他未知错误
-      ElMessageBox.alert('提交通知失败，请检查网络或稍后重试');
+      ElMessageBox.alert('提交评价失败，请检查网络或稍后重试');
     }
   }
 };
