@@ -147,7 +147,7 @@ async function getStage() {
 		changeStatus()
 	}
 	//未被淘汰
-	function listInfo(res,stageName,info) {
+	function listInfo(res,stageName) {
 		list.value = []
 		for (let i = 0; i < res.length; i++){
 			let start = res[i].startTime.split('T')[0]
@@ -156,7 +156,11 @@ async function getStage() {
 			if (status !== '') {
 				activeIndex.value = i
 				if (res[i].stageName != stageName) {
-					status = info
+					if (res[i].stageName == '报名') {
+						status='未报名'
+					} else if (res[i].stageName != '报名' && stageName!='未报名') {
+						status='未预约'
+					}
 				}
 			}
 			list.value.push({
@@ -200,11 +204,11 @@ async function getStage() {
 			if (r.out) {
 				outList(res,r.stageName)
 			} else {
-				listInfo(res,r.stageName,'待预约')
+				listInfo(res,r.stageName)
 			}
 		} else {
 			//未报名
-			listInfo(res,'未报名','待报名')
+			listInfo(res,'未报名')
 		}
 		//刷新
 		if (isPull.value) {
@@ -212,11 +216,13 @@ async function getStage() {
 			isPull.value = false
 		}
 	} catch (err) {
-		uni.showToast({
-			icon: 'none',
-			title:'网络错误'
-		})
-		console.log('出错了',err)
+		if (err !== 'token失效，请重新登录') {
+			uni.showToast({
+				icon: 'none',
+				title: '网络错误'
+			})
+		} 
+		console.log('出错了', err)
 	}
 }
 

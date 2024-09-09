@@ -8,10 +8,8 @@
 			<image
 				src="../../static/cat-4.png"
 				mode="scaleToFill"
-				style="height: 40px;
-				width: 100px;
-				margin-left: 260px;
-				margin-top: 30px;"
+				class="animated-cat"
+				style="height: 40px; width: 100px; margin-left: 260px; margin-top: 30px;"
 			/>
 				<swiper class="swiper-box" @change="change1" :current="swiperDotIndex">
 					<swiper-item v-for="(item, index) in list1" :key="index">
@@ -138,5 +136,21 @@
 }
 .swiper-item3 {
 	background-color: #f1c469;
+}
+
+.animated-cat {
+    animation: moveCat 4s infinite ease-in-out;
+}
+
+@keyframes moveCat {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-220px); /* 移动的距离 */
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 </style>

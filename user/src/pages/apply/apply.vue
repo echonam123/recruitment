@@ -26,15 +26,25 @@ import successSign from '@/components/successSign/successSign.vue';
 
 let activeIndex = ref(0)
 async function isSignin() {
-  let res = await http({
-    url: '/user/user',
-    method:'GET'
-  })
-  //查看是否报名
-  if (!res) {
-    activeIndex.value = 0
-  } else {
-    activeIndex.value = 1
+  try {
+    let res = await http({
+      url: '/user/user',
+      method:'GET'
+    })
+    //查看是否报名
+    if (!res) {
+      activeIndex.value = 0
+    } else {
+      activeIndex.value = 1
+    }
+  } catch (err) {
+      if (err !== 'token失效，请重新登录') {
+			uni.showToast({
+				icon: 'none',
+				title: '网络错误'
+			})
+		} 
+		console.log('出错了', err)
   }
 }
 isSignin()

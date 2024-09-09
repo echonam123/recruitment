@@ -135,6 +135,9 @@ async function checkValid() {
   if (!reg1.test(signInfo.value.studentId)) {
     message.value.studentId = '学号格式错误'
   }
+  if (signInfo.value.className.length < 2) {
+    message.value.className = '班级字数至少两个字'
+  }
   //判断是否有效
   for (let k in message.value) {
     if (message.value[k] !== '') {
@@ -144,17 +147,19 @@ async function checkValid() {
   // //发送请求
   try {
     await http({
-    url: '/user/info',
-    method: 'POST',
-    data:signInfo.value
+      url: '/user/info',
+      method: 'POST',
+      data:signInfo.value
     })
     emit('signIn')
   } catch (err){
-    uni.showToast({
-			icon: 'none',
-			title:'网络错误'
-		})
-		console.log('出错了',err)
+    if (err !== 'token失效，请重新登录') {
+			uni.showToast({
+				icon: 'none',
+				title: '网络错误'
+			})
+		} 
+		console.log('出错了', err)
   }
 }
 function submit() {
@@ -166,7 +171,6 @@ function submit() {
 <style scoped lang="less">
   .form{
     margin: 20rpx auto;
-    /* padding: 10rpx; */
     width: 90%;
     background-color: #fff;
     border-radius: 1.5%;

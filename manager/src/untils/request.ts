@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { showMessage } from "./status"; // 引入状态码文件
+import { ElMessageBox } from 'element-plus'
  const axiosInstance: AxiosInstance = axios.create({
   baseURL: 'http://39.106.69.15:8081/',
   timeout: 40000,
@@ -58,26 +59,33 @@ export function request<T>(data: any) {
         } else if (res.data.data.hasOwnProperty('startTime')) {
           console.log(showMessage(res.status))
           reject(res.data.data.startTime)
+        } else if ((res.data as resData<T>).code == 401) { 
+          console.log(showMessage(res.status))
+          if (localStorage.getItem('token')) {
+           localStorage.removeItem('token')
+          }
+          reject('token已过期，请重新登录')
         } else {
           console.log(showMessage(res.status))
-          reject(res.data.message)
+          reject('网络错误')
         }
       })
      .catch((err) => {
-       if ((err as resData<T>).code == 401) {
-         //清空token
-         if (localStorage.getItem('token')) {
-           localStorage.removeItem('token')
-           ElMessage({
-             showClose: true,
-             message: '请重新登录',
-             type: 'error',
-             duration: 2000
-           })
-         }
-       }
-       console.log(showMessage(err.status))
-        reject(err)
+        console.log(err)
+        console.log(showMessage(err.status))
+        reject('网络错误')
       })
   })
+}
+
+export function dealEor(err:any) {
+  if (err == 'token已过期，请重新登录') {
+    ElMessageBox.alert(`${err}`, {
+      callback() {
+        location.reload()
+      }
+    })
+  } else {
+    ElMessageBox.alert(`${err}`)
+  }
 }

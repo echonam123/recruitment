@@ -106,7 +106,8 @@
     
 <script lang='ts' setup name='stage'>
 import { ref } from 'vue'
-import { request } from '../untils/request';
+import { request ,dealEor} from '../untils/request';
+// import { ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs'
 //loading加载
 let loading = ref(true)
@@ -161,12 +162,7 @@ async function getAllStage() {
     })
     loading.value = false
   } catch (err) {
-    ElMessage({
-      showClose: true,
-      message: `${err}`,
-      type: 'error',
-      duration:2000
-    })
+    dealEor(err)
   }
 }
 
@@ -176,39 +172,31 @@ let form = ref({
   stageName: '',
   startTime: '',
   endTime: '',
-  time:''
+  time:[dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')]
 })
 async function addItem() {
   form.value.startTime = dayjs(form.value.time[0]).format('YYYY-MM-DD HH:mm:ss')
   form.value.endTime = dayjs(form.value.time[1]).format('YYYY-MM-DD HH:mm:ss')
   if (form.value.stageName == '' || form.value.startTime == '' || form.value.endTime == '') {
-    ElMessage({
-      showClose: true,
-      message: '阶段信息不全',
-      type: 'error',
-    })
+    ElMessageBox.alert('阶段信息不全')
     return
   }
   //发送新增阶段信息请求
   try {
-     await request({
-    url: 'stage/new',
-    method: 'POST',
-    data: {
-      stageName:form.value.stageName,
-      startTime:form.value.startTime,
-      endTime:form.value.endTime
-    }
-  })
-  clearForm()
-  getAllStage()
-  dialogVisible.value = false
-  } catch (err) {
-    ElMessage({
-      showClose: true,
-      message: `${err}`,
-      type: 'error',
+      await request({
+      url: 'stage/new',
+      method: 'POST',
+      data: {
+        stageName:form.value.stageName,
+        startTime:form.value.startTime,
+        endTime:form.value.endTime
+      }
     })
+    clearForm()
+    getAllStage()
+    dialogVisible.value = false
+  } catch (err) {
+    dealEor(err)
   }
 }
 function clearForm() {
@@ -216,7 +204,7 @@ function clearForm() {
     stageName: '',
     startTime: '',
     endTime: '',
-    time:''
+    time: [dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'), dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')]
   }
 }
 
@@ -229,11 +217,7 @@ async function deleteRow(id:number){
     })
     getAllStage()
   } catch (err) {
-     ElMessage({
-      showClose: true,
-      message: `${err}`,
-      type: 'error',
-    })
+    dealEor(err)
   }
 }
 
@@ -251,11 +235,7 @@ async function confirmEdit(row: rowData) {
   row.startTime = dayjs(row.startTime).format('YYYY-MM-DD HH:mm:ss')
   row.endTime = dayjs(row.endTime).format('YYYY-MM-DD HH:mm:ss')
  if (row.stageName == '' || row.startTime == '' || row.endTime == '') {
-    ElMessage({
-      showClose: true,
-      message: '阶段信息不全',
-      type: 'error',
-    })
+    ElMessageBox.alert('阶段信息不全')
     return
   }
   try {
@@ -272,11 +252,7 @@ async function confirmEdit(row: rowData) {
   getAllStage()
   row.isEditing = false
   } catch (err) {
-    ElMessage({
-      showClose: true,
-      message: `${err}`,
-      type: 'error',
-    })
+    dealEor(err)
   }
 }
 function cancelEdit(row: rowData) {
@@ -285,7 +261,6 @@ function cancelEdit(row: rowData) {
   row.isEditing = false
 }
 
-    
 </script>
     
 <style scoped>
