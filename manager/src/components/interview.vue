@@ -2,23 +2,15 @@
   <div>
     <el-divider content-position="center">预约管理</el-divider>
     <el-row>
-      <el-col :span="1.5">
-          <el-select v-model="form.direction" placeholder="预约方向" style="width: 120px;">
+          <el-select v-model="form.direction" placeholder="预约方向" style="width: 120px;margin-right: 10px;">
             <el-option label="前端" value="1"></el-option>
             <el-option label="后端" value="2"></el-option>
           </el-select>
-      </el-col>
-      <el-col :span="2">
-      <el-select v-model="form.stageid" placeholder="预约阶段" style="width: 120px;">
+      <el-select v-model="form.stageid" placeholder="预约阶段" style="width: 120px;margin-right: 10px;">
         <el-option v-for="stage in stages" :key="stage.stageId" :label="stage.stageName" :value="stage.stageId"></el-option>
       </el-select>
-  </el-col>
-      <el-col :span="2" style="text-align:center;">
-        <el-button type="primary" @click="showDialog = true">添加预约时间</el-button>
-      </el-col>
-      <el-col :span="1" style="text-align:left;">
+        <el-button type="primary" @click="showDialog = true" style="margin-right: 10px;">添加预约时间</el-button>
         <el-button type="primary" @click="getInterview()">展示对应预约情况</el-button>
-      </el-col>
     </el-row>
 
     <!-- 表单部分 -->
