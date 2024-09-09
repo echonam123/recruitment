@@ -159,9 +159,9 @@ const openScoreDialog = async(row: Applicant) => {
   currentUser.value = row;
   try{
     const response = await GetRate(token.value,row.userId);
-    if (response.data.data && response.data.data.scoreVoList) {
-      store.commit("setRate", { userId: row.userId, score: response.data.data });
-      filterDataBystagename(response.data.data);
+    if (response.data.data.scoreVoList) {
+      store.commit("setRate", { userId: row.userId, score: response.data.data.scoreVoList });
+      filterDataBystagename(response.data.data.scoreVoList);
     } else {
       ElMessageBox.alert('暂无评价信息');
     }
