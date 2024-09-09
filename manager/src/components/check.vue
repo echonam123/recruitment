@@ -97,6 +97,7 @@ import { ElMessageBox,ElMessage } from 'element-plus';
 import { Applicant } from '../api/base';
 import { GetRate } from '../api/modules/score';
 interface RateBack{
+  StageName: string,
   scoreVoList: RateItem[];
 };
 interface RateItem{
@@ -135,45 +136,49 @@ const emptyApplicant: Applicant = {
 };
 const currentUser = ref<Applicant>(emptyApplicant);
 
-const filterDataBystagename = (data:RateBack) => {
+const filterDataBystagename = (data: RateBack[]) => {
   // Clear previous data
   stageOneData.value = [];
   roundOneData.value = [];
   roundTwoData.value = [];
-  data.scoreVoList.forEach(item => {
-  switch (item.stageName) {
-    case "面试":
-      stageOneData.value.push(item);
-      break;
-    case "一轮考核":
-      roundOneData.value.push(item);
-      break;
-    case "二轮考核":
-      roundTwoData.value.push(item);
-      break;
-  }
-});
+  
+  data.forEach(item => {
+    // 遍历每个 stageName 对应的评分数据
+    item.scoreVoList.forEach(scoreItem => {
+      switch (scoreItem.stageName) {
+        case "面试":
+          stageOneData.value.push(scoreItem);
+          break;
+        case "一轮考核":
+          roundOneData.value.push(scoreItem);
+          break;
+        case "二轮考核":
+          roundTwoData.value.push(scoreItem);
+          break;
+      }
+    });
+  });
 }
-const openScoreDialog = async(row: Applicant) => {
+const openScoreDialog = async (row: Applicant) => {
   ScoreDialogVisible.value = true;
   currentUser.value = row;
-  try{
-    const response = await GetRate(token.value,row.userId);
-    if (response.data.data.scoreVoList) {
-      store.commit("setRate", { userId: row.userId, score: response.data.data.scoreVoList });
-      filterDataBystagename(response.data.data.scoreVoList);
+  try {
+    const response = await GetRate(token.value, row.userId);
+    if (response.data.data && Array.isArray(response.data.data)) {
+      // 调用filterDataBystagename时传入数组
+      store.commit("setRate", { userId: row.userId, score: response.data.data });
+      filterDataBystagename(response.data.data);
     } else {
       ElMessageBox.alert('暂无评价信息');
     }
-  }catch(error){
+  } catch (error) {
     if (error instanceof Error) {
-      // 处理拦截器中抛出的错误
       ElMessageBox.alert(`Rate获取失败。错误信息: ${error.message}`);
-    }else{
+    } else {
       console.warn(`UserId ${currentUser.value.userId} 的 Rate 数据获取失败`, error);
     }
-  };
-}
+  }
+};
 /*
 *rawData是vuex中用于接收存储报名人的数据，并在check和batch之间共享
 *从vuex中引出rawData变量
