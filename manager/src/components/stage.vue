@@ -106,8 +106,8 @@
     
 <script lang='ts' setup name='stage'>
 import { ref } from 'vue'
-import { request } from '../untils/request';
-import { ElMessageBox} from 'element-plus';
+import { request ,dealEor} from '../untils/request';
+// import { ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs'
 //loading加载
 let loading = ref(true)
@@ -162,7 +162,7 @@ async function getAllStage() {
     })
     loading.value = false
   } catch (err) {
-    ElMessageBox.alert(`${err}`)
+    dealEor(err)
   }
 }
 
@@ -172,7 +172,7 @@ let form = ref({
   stageName: '',
   startTime: '',
   endTime: '',
-  time:''
+  time:[dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')]
 })
 async function addItem() {
   form.value.startTime = dayjs(form.value.time[0]).format('YYYY-MM-DD HH:mm:ss')
@@ -196,7 +196,7 @@ async function addItem() {
     getAllStage()
     dialogVisible.value = false
   } catch (err) {
-    ElMessageBox.alert(`${err}`)
+    dealEor(err)
   }
 }
 function clearForm() {
@@ -204,7 +204,7 @@ function clearForm() {
     stageName: '',
     startTime: '',
     endTime: '',
-    time:''
+    time: [dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'), dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')]
   }
 }
 
@@ -217,7 +217,7 @@ async function deleteRow(id:number){
     })
     getAllStage()
   } catch (err) {
-    ElMessageBox.alert(`${err}`)
+    dealEor(err)
   }
 }
 
@@ -252,7 +252,7 @@ async function confirmEdit(row: rowData) {
   getAllStage()
   row.isEditing = false
   } catch (err) {
-    ElMessageBox.alert(`${err}`)
+    dealEor(err)
   }
 }
 function cancelEdit(row: rowData) {

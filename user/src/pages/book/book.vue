@@ -1,5 +1,5 @@
 <template>
-  <h2 class="example-info">{{ stageTitle }}</h2>
+  <h2 class="example-info">{{ stageTitle }}预约</h2>
   <view class="calendar-content" v-if="showCalendar">
     <uni-calendar
       :selected="info.selected"
@@ -21,6 +21,7 @@
             @click="reserveSlot(index)"
           >
             <text>{{ slot.startTime }} - {{ slot.endTime }}</text>
+            <text v-if="currentReservationTimeSolt === slot.timeId" class="reserved-text">已预约</text>
             <text>{{ slot.capacity - slot.remaining }}/{{ slot.capacity }}</text>
           </view>
         </view>
@@ -31,14 +32,13 @@
 
 <script>
 import { http } from '@/utils/http';
-
 export default {
   data() {
     return {
       timeSlots: [], // 请求的时间段
       filteredTimeSlots: [], // 过滤后的时间段
       showCalendar: false,
-      stageTitle: '',
+       stageTitle: uni.getStorageSync('currentStageName'),
       info: {
         lunar: true,
         range: true,
@@ -53,47 +53,35 @@ export default {
   },
   onReady() {
     this.$nextTick(() => {
-      this.showCalendar = true;
-    })
-    this.fetchDetails()
-      .then(details => {
-        const { direction, stageId } = details;
-        this.fetchAppointmentData(direction, stageId);
-      })
-      .catch(error => {
-        console.error('获取阶段和方向失败:', error)
-      })
+      this.showCalendar = true
+   })
+     this.fetchDetails()
+       .then(details => {
+         const { direction} = details
+         const stageId=uni.getStorageSync('currentStageId')
+         console.log(direction,stageId)
+        this.fetchAppointmentData(direction, stageId)
+       })
+       .catch(error => {
+         console.error('获取方向失败:', error)
+       })
     this.info.selected = []
   },
   methods: {
-    fetchDetails() {
-      return http({
-        url: '/user/user',
-        method: 'GET'
-      })
-      .then(response => {
-        let stageTitle = '';
-      switch (response.stageId) {
-        case 1:
-          stageTitle = '面试预约'
-          break;
-        case 2:
-          stageTitle = '一轮预约'
-          break;
-        case 3:
-          stageTitle = '二轮预约'
-          break;
-      }
-      this.stageTitle = stageTitle;
-        return {
-          direction: response.direction,
-          stageId: response.stageId
-        }
-      })
-      .catch(error => {
-        console.error('获取阶段和方向失败:', error);
-      })
-    },
+     fetchDetails() {
+       return http({
+         url: '/user/user',
+         method: 'GET'
+       })
+       .then(response => {
+         return {
+           direction: response.direction,
+         }
+       })
+    .catch(error => {
+        console.error('获取方向失败:', error);
+       })
+     },
     fetchAppointmentData(direction, stageId) {
       uni.showLoading({ title: '正在获取信息...' });
       return http({
@@ -129,11 +117,7 @@ export default {
       if (this.availableDates.includes(selectedDate)) {
         this.selectedDate = selectedDate;
         this.filteredTimeSlots = this.timeSlots
-          .filter(slot => slot.startTime.split(' ')[0] === selectedDate);
-        this.info.selected = this.availableDates.map(date => ({
-          date: date,
-          info: date === selectedDate ? '可预约' : '不可预约'
-        }))
+          .filter(slot => slot.startTime.split(' ')[0] === selectedDate)
         this.$refs.popup.open("bottom")
       } else {
         uni.showToast({
@@ -148,27 +132,23 @@ export default {
         url: `/interview/cancel/${reservationId}`,
         method: 'PUT'
       })
-      .then(response => {
-        this.currentReservationTimeSolt=null
+      .then(() => {
         this.filteredTimeSlots = this.filteredTimeSlots.map(slot => {
       if (slot.timeId === this.currentReservationTimeSolt) { 
         return { ...slot, remaining: slot.remaining +1 }
       }
       return slot
-    
     })
         uni.showToast({
           title: "预约已取消",
           icon: "success",
         })
-        
         this.currentReservationId = null
         this.currentReservationTimeSlot = null
         uni.removeStorageSync('reservation')
         uni.removeStorageSync('currentReservationTimeSolt')
       })
       .catch(error => {
-        console.error('取消预约失败:', error);
         uni.showToast({
           title: "取消预约失败",
           icon: "none",
@@ -195,8 +175,6 @@ export default {
       }
       return slot
     })
-    const reservation = uni.getStorageSync('reservation')
-console.log(reservation)
         uni.showToast({
           title: "预约成功",
           icon: "success",
@@ -235,30 +213,6 @@ console.log(reservation)
     }
   }
   }
-}
-
-function getDate(date, AddDayCount = 0) {
-  if (!date) {
-    date = new Date();
-  }
-  if (typeof date !== "object") {
-    date = date.replace(/-/g, "/");
-  }
-  const dd = new Date(date);
-
-  dd.setDate(dd.getDate() + AddDayCount); // 获取 AddDayCount 天后的日期
-
-  const y = dd.getFullYear();
-  const m =
-    dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1; // 获取当前月份的日期，不足 10 补 0
-  const d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate(); // 获取当前几号，不足 10 补 0
-  return {
-    fullDate: y + "-" + m + "-" + d,
-    year: y,
-    month: m,
-    date: d,
-    day: dd.getDay(),
-  };
 }
 </script>
 
@@ -303,8 +257,13 @@ function getDate(date, AddDayCount = 0) {
 }
 
 .time-slot.selected {
-  background-color: #a0e0a0; /* 预约成功的样式，例如绿色背景 */
+  background-color: #a0e0a0; 
   color: #fff;
+}
+.reserved-text {
+  color: #ff0000;
+  font-size: 12px;
+  margin-left: 10px;
 }
 
 </style>
