@@ -9,12 +9,10 @@
           </el-select>
       </el-col>
       <el-col :span="2">
-          <el-select v-model="form.stageid" placeholder="预约阶段" style="width: 120px;">
-            <el-option label="面试" value="1"></el-option>
-            <el-option label="一轮" value="2"></el-option>
-            <el-option label="二轮" value="3"></el-option>
-          </el-select>
-      </el-col>
+      <el-select v-model="form.stageid" placeholder="预约阶段" style="width: 120px;">
+        <el-option v-for="stage in stages" :key="stage.stageId" :label="stage.stageName" :value="stage.stageId"></el-option>
+      </el-select>
+  </el-col>
       <el-col :span="2" style="text-align:center;">
         <el-button type="primary" @click="showDialog = true">添加预约时间</el-button>
       </el-col>
@@ -156,7 +154,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { request } from '../untils/request';
-const loading = ref(false);
 interface InterviewResponse {
   [x: string]: any
   startTime: string
@@ -184,14 +181,28 @@ interface usersInfo{
       phone: string
       introduction: string
 }
+interface Stage {
+  stageId: number
+  startTime: string
+  endTime: string
+  stageName: string
+}
+interface StagesResponse {
+[x: string]: any
+  code: number
+  message: string
+  data: Stage[]
+}
+const loading = ref(false)
 const form = ref({
   startTime: '',
   endTime: '',
   capacity: 0,
   stageid:null as number | null,
   direction: null as number | null,
-});
+})
 const appointments = ref<Appointment[]>([]);
+  const stages = ref<Stage[]>([]); 
 const showDialog = ref(false)
 const userDetails = ref<any[]>([])
 const userDetailsDialog = ref(false)
@@ -372,5 +383,28 @@ async function getUserDetails(timeId: string) {
     return []
   }
 }
+//获取阶段id
+async function getStages() {
+  loading.value = true
+  try {
+    const response = await request({
+      method: 'GET',
+      url: '/stage/listStage'
+    }) as StagesResponse
+    if (response) {
+      stages.value = response .filter((stage: Stage) => stage.stageName !== '报名')
+      .map((element: Stage) => ({
+        stageId: element.stageId,
+        startTime: element.startTime,
+        endTime: element.endTime,
+        stageName: element.stageName
+      }))
+    }
+  } catch (error: any) {
+    alert('获取阶段信息失败')
+  }
+  loading.value = false
+}
+getStages()
 </script>
 <style scoped></style>
