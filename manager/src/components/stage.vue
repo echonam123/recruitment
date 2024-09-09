@@ -172,7 +172,7 @@ let form = ref({
   stageName: '',
   startTime: '',
   endTime: '',
-  time:''
+  time:[dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')]
 })
 async function addItem() {
   form.value.startTime = dayjs(form.value.time[0]).format('YYYY-MM-DD HH:mm:ss')
@@ -204,7 +204,7 @@ function clearForm() {
     stageName: '',
     startTime: '',
     endTime: '',
-    time:''
+    time: [dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'), dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')]
   }
 }
 
