@@ -135,6 +135,9 @@ async function checkValid() {
   if (!reg1.test(signInfo.value.studentId)) {
     message.value.studentId = '学号格式错误'
   }
+  if (signInfo.value.className.length < 2) {
+    message.value.className = '班级字数至少两个字'
+  }
   //判断是否有效
   for (let k in message.value) {
     if (message.value[k] !== '') {
