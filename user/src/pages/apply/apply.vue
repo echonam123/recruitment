@@ -26,6 +26,7 @@ import successSign from '@/components/successSign/successSign.vue';
 
 let activeIndex = ref(0)
 async function isSignin() {
+  uni.showLoading({ title: '正在加载中...' })
   try {
     let res = await http({
       url: '/user/user',
@@ -37,7 +38,9 @@ async function isSignin() {
     } else {
       activeIndex.value = 1
     }
+    uni.hideLoading()
   } catch (err) {
+      uni.hideLoading()
       if (err !== 'token失效，请重新登录') {
 			uni.showToast({
 				icon: 'none',

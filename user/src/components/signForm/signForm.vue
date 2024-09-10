@@ -60,7 +60,7 @@
       <view class="form_content">
         <textarea
         v-model="signInfo.introduction"
-        placeholder="简单地进行一个自我介绍吧~200个字左右"
+        placeholder="简单地进行一个自我介绍吧~"
         />
         <view class="msg">{{ message.introduction }}</view>
       </view>
@@ -122,12 +122,12 @@ async function checkValid() {
     }
   }
   //判断邮箱
-  let reg = /[\w]+@[A-Za-z]+(\.[A-Za-z0-9]+){1,2}/
+  let reg = /^[1-9][0-9]{4,}@qq.com$/
   if (!reg.test(signInfo.value.phone)) {
     message.value.phone = '请输入有效邮箱'
   }
   //判断自我介绍字数
-  if (signInfo.value.introduction.length < 100) {
+  if (signInfo.value.introduction.length < 30) {
     message.value.introduction = '有点少诶，再多说几句让我们了解你~'
   }
   //判断学号
@@ -135,8 +135,9 @@ async function checkValid() {
   if (!reg1.test(signInfo.value.studentId)) {
     message.value.studentId = '学号格式错误'
   }
-  if (signInfo.value.className.length < 2) {
-    message.value.className = '班级字数至少两个字'
+  let reg2 = /\u73ED/
+  if (!reg2.test(signInfo.value.className)) {
+    message.value.className = '请以XX班格式填写'
   }
   //判断是否有效
   for (let k in message.value) {
@@ -145,14 +146,17 @@ async function checkValid() {
     }
   }
   // //发送请求
+  uni.showLoading({ title: '正在提交报名信息...' })
   try {
     await http({
       url: '/user/info',
       method: 'POST',
       data:signInfo.value
     })
+    uni.hideLoading()
     emit('signIn')
-  } catch (err){
+  } catch (err) {
+    uni.hideLoading()
     if (err !== 'token失效，请重新登录') {
 			uni.showToast({
 				icon: 'none',

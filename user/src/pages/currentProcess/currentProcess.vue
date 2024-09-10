@@ -79,7 +79,8 @@ function changeStatus() {
 					list.value[i].status = '正在进行中'
 			}
 		} else {
-				list.value[i].status = '未开始'
+			list.value[i].status = '未开始'
+			list.value[i].desc = ''
 		}
 	}
 }
@@ -190,6 +191,7 @@ async function getStage() {
 		})
 		changeStatus()
 	}
+	uni.showLoading({ title: '正在加载中...' })
 	try {
 		//获取用户信息
 		let r = await http<userInfo>({
@@ -210,12 +212,14 @@ async function getStage() {
 			//未报名
 			listInfo(res,'未报名')
 		}
+		uni.hideLoading()
 		//刷新
 		if (isPull.value) {
 			uni.stopPullDownRefresh()
 			isPull.value = false
 		}
 	} catch (err) {
+		uni.hideLoading()
 		if (err !== 'token失效，请重新登录') {
 			uni.showToast({
 				icon: 'none',

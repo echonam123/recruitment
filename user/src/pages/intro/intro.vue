@@ -1,5 +1,5 @@
 <template>
-  <swiper class="intro" @change="changeColor" :current="currentPage">
+  <swiper class="intro" @change="changeColor" :current="currentPage" indicator-dots :indicator-active-color="colorList[currentPage]">
      <!-- 工作室概况 -->
     <swiper-item>
       <view class="intro-title">

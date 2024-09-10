@@ -19,6 +19,12 @@ let isShow = ref(false)
 function showBtn() {
   isShow.value = true
 }
+function autoShowBtn() {
+  setTimeout(() => {
+    showBtn()
+  },2600)
+}
+autoShowBtn()
 function navToIntro() {
   uni.switchTab({
     url:'/pages/intro/intro'
