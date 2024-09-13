@@ -126,7 +126,7 @@ const handleLogin = async () => {
         const loginRes = await login();
         console.log(loginRes);
         await wxLogin(loginRes);
-        console.log('用户已成功登录');
+        console.log('用户已成功登录')
         // 从服务器获取用户信息
         const userProfile = await getUserProfile();
         // 存储用户信息
@@ -135,6 +135,7 @@ const handleLogin = async () => {
             userName: userProfile
         });
         isLoggedIn.value = true;
+        uni.reLaunch({ url: '/pages/myth/myth' })
     } catch (err) {
         console.error('登录失败:', err);
     } finally {

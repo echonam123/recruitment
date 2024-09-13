@@ -45,11 +45,7 @@ interface info{
 }
 const currentStageId = ref<number | null>(null)
 const navToSign = (page:string) => {
-  const token=uni.getStorageSync('token')
-  if (uni.getStorageSync('currentStageName') != '报名' ) {  //用户未报名以及该时间不在报名阶段时不开放
-    uni.showToast({ title: '暂未开放', icon: 'none' })
-    return
-  }
+  const token = uni.getStorageSync('token')
   if (!token) {
     uni.showModal({
       title: '提示',
@@ -63,6 +59,10 @@ const navToSign = (page:string) => {
       }
     })
     return 
+  }
+  if (uni.getStorageSync('currentStageName') != '报名' && uni.getStorageSync('stageId') ==0) { 
+    uni.showToast({ title: '暂未开放', icon: 'none' })
+    return
   }
   uni.navigateTo({ url: page })
 }
@@ -116,19 +116,19 @@ const fetchStages = async (): Promise<void> => {
     console.error('获取阶段失败:', error)
   }
 }
-async function fetchUserInfo()
-{
-  try {
-const response = await http<info>({
-url: '/user/user',
-method: 'GET'
-});
-  uni.setStorageSync('out', response.out)
-  uni.setStorageSync('stageId', response.stageId)
-} catch (error) {
-console.error('获取用户信息失败:', error);
-}
-}
+  async function fetchUserInfo()
+  {
+      try {
+    const response = await http<info>({
+    url: '/user/user',
+    method: 'GET'
+    });
+      uni.setStorageSync('out', response.out)
+      uni.setStorageSync('stageId', response.stageId)
+    } catch (error) {
+    console.error('获取用户信息失败:', error);
+    }
+  }
 onMounted(() => {
   fetchStages()
   fetchUserInfo()
