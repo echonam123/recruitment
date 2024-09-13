@@ -60,7 +60,7 @@ const navToSign = (page:string) => {
     })
     return 
   }
-  if (uni.getStorageSync('currentStageName') != '报名' && uni.getStorageSync('stageId') ==0) { 
+  if (uni.getStorageSync('currentStageName') != '报名' && uni.getStorageSync('stageName') =='未报名') { 
     uni.showToast({ title: '暂未开放', icon: 'none' })
     return
   }
