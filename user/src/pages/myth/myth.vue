@@ -39,7 +39,10 @@ interface Stage {
   endTime: string
   stageName: string
 }
-
+interface info{
+  out:string
+  stageId:number
+}
 const currentStageId = ref<number | null>(null)
 const navToSign = (page:string) => {
   const token=uni.getStorageSync('token')
@@ -65,10 +68,11 @@ const navToSign = (page:string) => {
 }
 const onClick = (page: string) => {
   currentStageId.value=uni.getStorageSync('currentStageId')
+  const out=uni.getStorageSync('out')
   console.log(currentStageId.value)
   const token=uni.getStorageSync('token')
-  if (currentStageId.value === 1) {
-    uni.showToast({ title: '暂未开放', icon: 'none' })
+  if (currentStageId.value === 1||out===true) {
+    uni.showToast({ title: '未开放', icon: 'none' })
     return
   }
   uni.navigateTo({ url: page })
@@ -112,8 +116,22 @@ const fetchStages = async (): Promise<void> => {
     console.error('获取阶段失败:', error)
   }
 }
+async function fetchUserInfo()
+{
+  try {
+const response = await http<info>({
+url: '/user/user',
+method: 'GET'
+});
+  uni.setStorageSync('out', response.out)
+  uni.setStorageSync('stageId', response.stageId)
+} catch (error) {
+console.error('获取用户信息失败:', error);
+}
+}
 onMounted(() => {
   fetchStages()
+  fetchUserInfo()
 })
 </script>
 <style>
