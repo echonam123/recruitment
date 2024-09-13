@@ -168,9 +168,10 @@ export default {
             icon: "success",
           })
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log(error)
           uni.showToast({
-            title: "取消预约失败",
+            title:error,
             icon: "none",
           })
         })
@@ -201,9 +202,8 @@ export default {
           })
         })
         .catch(error => {
-          console.log(error)
           uni.showToast({
-              title: error.message + '请先取消预约',
+              title:error,
               icon: "none",
             })
         })
@@ -218,15 +218,21 @@ export default {
         this.cancelReservation(this.currentReservationId);
       } else {
         // 没有预约，直接进行新的预约
-        if (slot.remaining > 0) {
+        if (slot.remaining > 0 &&!this.currentReservationId ) {
           this.submitReservation(slot.timeId)
             .then(() => {
               // 设置当前预约的时间段索引
               this.currentReservationTimeSolt = slot.timeId;
             });
-        } else {
+        } else if(slot.remaining<0&&!this.currentReservationId) {
           uni.showToast({
-            title: "此时间段已满",
+            title: "此时间段已满，请选其他时间段",
+            icon: "none",
+          })
+        }
+        else if(this.currentReservationId){
+          uni.showToast({
+            title: "该阶段已有预约，请先取消预约",
             icon: "none",
           })
         }
