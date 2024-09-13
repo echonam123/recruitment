@@ -41,7 +41,7 @@ interface Stage {
 }
 interface info{
   out:string
-  stageId:number
+  stageName:string
 }
 const currentStageId = ref<number | null>(null)
 const navToSign = (page:string) => {
@@ -119,15 +119,20 @@ const fetchStages = async (): Promise<void> => {
   async function fetchUserInfo()
   {
       try {
-    const response = await http<info>({
-    url: '/user/user',
-    method: 'GET'
-    });
-      uni.setStorageSync('out', response.out)
-      uni.setStorageSync('stageId', response.stageId)
-    } catch (error) {
-    console.error('获取用户信息失败:', error);
-    }
+        const response = await http<info>({
+        url: '/user/user',
+        method: 'GET'
+        })
+        if (response) {
+            uni.setStorageSync('out', response.out)
+            uni.setStorageSync('stageName', response.stageName)
+        } else {
+          uni.setStorageSync('out', false)
+          uni.setStorageSync('stageName', '未报名')
+        }
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+      }
   }
 onMounted(() => {
   fetchStages()

@@ -98,21 +98,6 @@ function checkCurrentStage(startTime, endTime) {
 }
 
 //获取阶段信息
-interface userInfo{
-	userId: number,
-  college: string,
-  major: string,
-  className: string,
-  direction: number,
-  name: string,
-  studentId: string,
-  phone: string,
-  introduction: string,
-  avatar: string,
-  stageId: number,
-  stageName: string,
-  out: boolean
-}
 interface stage{
 	stageId: string,
 	stageName: string,
@@ -193,24 +178,18 @@ async function getStage() {
 	}
 	uni.showLoading({ title: '正在加载中...' })
 	try {
-		//获取用户信息
-		let r = await http<userInfo>({
-			url: '/user/user'
-		})
 		//查找所有的阶段信息
 		let res = await http<stage[]>({
 			url: '/stage/listStage'
 		})
 		//清空list数组，将阶段信息放入list数组中
-		if (r) {
-			if (r.out) {
-				outList(res,r.stageName)
-			} else {
-				listInfo(res,r.stageName)
-			}
+		//判断用户阶段状态
+		let userStage = uni.getStorageSync('stageName')
+		let userIsOut = uni.getStorageSync('out')
+		if (userIsOut) {
+			outList(res,userStage)
 		} else {
-			//未报名
-			listInfo(res,'未报名')
+			listInfo(res,userStage)
 		}
 		uni.hideLoading()
 		//刷新
