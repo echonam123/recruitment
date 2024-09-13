@@ -218,7 +218,7 @@ export default {
         this.cancelReservation(this.currentReservationId);
       } else {
         // 没有预约，直接进行新的预约
-        if (slot.remaining > 0 &&!this.currentReservationId ) {
+        if (slot.remaining > 0 &&this.currentReservationId===null) {
           this.submitReservation(slot.timeId)
             .then(() => {
               // 设置当前预约的时间段索引
