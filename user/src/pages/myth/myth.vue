@@ -7,14 +7,15 @@
     <uni-list-item
       title="报名"
       link
-      to="/pages/apply/apply"
+      @click="navToSign('/pages/apply/apply')"
       thumb='/static/报名.png' 
       thumb-size="sm"
     ></uni-list-item>
     <uni-list-item
       title="当前进程"
-      link to="/pages/currentProcess/currentProcess"
-      thumb="/static/进度.png" 
+      link
+      to="/pages/currentProcess/currentProcess"
+      thumb="/static/进度.png"
       thumb-size="sm"
     ></uni-list-item>
     <uni-list-item
@@ -40,6 +41,28 @@ interface Stage {
 }
 
 const currentStageId = ref<number | null>(null)
+const navToSign = (page:string) => {
+  const token=uni.getStorageSync('token')
+  if (uni.getStorageSync('currentStageName') != '报名' ) {  //用户未报名以及该时间不在报名阶段时不开放
+    uni.showToast({ title: '暂未开放', icon: 'none' })
+    return
+  }
+  if (!token) {
+    uni.showModal({
+      title: '提示',
+      content: '您尚未登录，是否登录？',
+      success: function(res) {
+        if (res.confirm) {
+          uni.switchTab({
+            url: '/pages/myth/myth',
+          })
+        }
+      }
+    })
+    return 
+  }
+  uni.navigateTo({ url: page })
+}
 const onClick = (page: string) => {
   currentStageId.value=uni.getStorageSync('currentStageId')
   console.log(currentStageId.value)
@@ -51,24 +74,24 @@ const onClick = (page: string) => {
   uni.navigateTo({ url: page })
   if(token===null){
     uni.showModal({
-              title: '提示',
-              content: '您尚未登录，是否登录？',
-              success: function(res) {
-                if (res.confirm) {
-                  uni.switchTab({
-                    url: '/pages/myth/myth',
-                  })
-                }
-              }
-            })
+      title: '提示',
+      content: '您尚未登录，是否登录？',
+      success: function(res) {
+        if (res.confirm) {
+          uni.switchTab({
+            url: '/pages/myth/myth',
+          })
+        }
+      }
+    })
   }
 }
 const fetchStages = async (): Promise<void> => {
   try {
     const response = await http<{
-[x: string]: any;
- data: Stage[] 
-}>({
+    [x: string]: any;
+    data: Stage[] 
+    }>({
       url: '/stage/listStage',
       method: 'GET'
     })
