@@ -57,23 +57,19 @@ export function request<T>(data: any) {
         if ((res.data as resData<T>).code >= 200 && (res.data as resData<T>).code < 300) {
           resolve((res.data as resData<T>).data)
         } else if (res.data.data.hasOwnProperty('startTime')) {
-          console.log(showMessage(res.status))
           reject(res.data.data.startTime)
         } else if ((res.data as resData<T>).code == 401) { 
-          console.log(showMessage(res.status))
           if (localStorage.getItem('token')) {
            localStorage.removeItem('token')
           }
           reject('token已过期，请重新登录')
         } else {
-          console.log(showMessage(res.status))
-          reject('网络错误')
+          reject((res.data as resData<T>).message)
         }
       })
      .catch((err) => {
         console.log(err)
-        console.log(showMessage(err.status))
-        reject('网络错误')
+        reject(err.message)
       })
   })
 }
