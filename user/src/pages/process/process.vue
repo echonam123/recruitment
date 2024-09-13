@@ -1,5 +1,4 @@
 <template>
-	<view>
 		<h2 class="title">招新流程</h2>
         <uni-section>
 			<uni-steps :options="list1" :active="current" :active-color="currentStepColor"/>
@@ -8,7 +7,6 @@
 			<image
 				src="../../static/cat-4.png"
 				mode="scaleToFill"
-				class="animated-cat"
 				style="height: 40px; width: 100px; margin-left: 260px; margin-top: 30px;"
 			/>
 				<swiper class="swiper-box" @change="change1" :current="swiperDotIndex">
@@ -18,13 +16,20 @@
 						</view>
 					</swiper-item>
 				</swiper>
+		<view class="swiper-dots">
+					<view
+						v-for="(item, index) in list1"
+						:key="index"
+						:class="['dot', { 'active-dot': index === swiperDotIndex }]"
+						 :style="{ backgroundColor: index === swiperDotIndex ? currentStepColor : '#848484' }"
+					/>
+				</view>
 		</view>
 		<image
 			src="../../static/cat-3.png"
 			mode="scaleToFill"
 			style="width: 100%; height: 100px; margin-bottom: 0;"
 		/>
-	</view>
 </template>
 
 <script>
@@ -61,20 +66,24 @@
 		},
 		methods: {
             change1(e) {
-				this.current = e.detail.current;
-				this.swiperDotIndex = e.detail.current;
+				this.current = e.detail.current
+				this.swiperDotIndex = e.detail.current
 				// 更新当前步骤的颜色
-				this.currentStepColor = this.list1[this.current].color;
+				this.currentStepColor = this.list1[this.current].color
+                //更新点的颜色
+				this.dotsStyles = {
+            backgroundColor: this.currentStepColor,
+        }
 			},
 			selectStyle(index) {
-				this.dotsStyles = this.dotStyle[index];
-				this.styleIndex = index;
+				this.dotsStyles = this.dotStyle[index]
+				this.styleIndex = index
 			},
 			selectMode(mode, index) {
-				this.mode = mode;
-				this.modeIndex = index;
-				this.styleIndex = -1;
-				this.dotsStyles = this.dotStyle[0];
+				this.mode = mode
+				this.modeIndex = index
+				this.styleIndex = -1
+				this.dotsStyles = this.dotStyle[0]
 			}
 		}
 	}
@@ -89,6 +98,7 @@
     font-size: 26px;
     animation: bounce 3s infinite;
 	margin-top: 40px;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes bounce {
@@ -110,16 +120,16 @@
     height: 200px;
 	margin-bottom: 10px;
 }
-
 .swiper-item {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
-    font-size: 6px;
+    font-size: 14px; 
     color: black;
+    padding: 0 20px; 
+    box-sizing: border-box; 
 }
-
 .uni-swiper-dot-box {
     position: relative;
     margin-top: 10px;
@@ -137,20 +147,21 @@
 .swiper-item3 {
 	background-color: #f1c469;
 }
-
-.animated-cat {
-    animation: moveCat 4s infinite ease-in-out;
+.swiper-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
 }
-
-@keyframes moveCat {
-    0% {
-        transform: translateX(0);
-    }
-    50% {
-        transform: translateX(-220px); /* 移动的距离 */
-    }
-    100% {
-        transform: translateX(0);
-    }
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #e6e1e1;
+    margin: 0 4px;
+	z-index: 999;
+}
+.active-dot {
+    background-color: #bcb9b9;
+	z-index: 999;
 }
 </style>

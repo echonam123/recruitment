@@ -7,20 +7,22 @@
     <uni-list-item
       title="报名"
       link
-      @click="onClick('/pages/apply/apply')"
-      thumb="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn1oKT268G5xIiKXuNkUiGyxZxy6mHx2MTrw&s" 
+      to="/pages/apply/apply"
+      thumb='/static/报名.png' 
+      thumb-size="sm"
     ></uni-list-item>
     <uni-list-item
       title="当前进程"
-      link
-      @click="onClick('/pages/currentProcess/currentProcess')"
-      thumb="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYsaONChSIgVSM6U1IwUKA7LD_dt_udkBmUw&s" 
+      link to="/pages/currentProcess/currentProcess"
+      thumb="/static/进度.png" 
+      thumb-size="sm"
     ></uni-list-item>
     <uni-list-item
       title="预约"
       link
       @click="onClick('/pages/book/book')"
-      thumb="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVp43omVTE3BTTabv7tchc2H-M385zQe_dCA&s"
+      thumb="/static/预约.png"
+      thumb-size="sm"
     ></uni-list-item>
   </uni-list>
 </template>
@@ -40,24 +42,40 @@ interface Stage {
 const currentStageId = ref<number | null>(null)
 const onClick = (page: string) => {
   currentStageId.value=uni.getStorageSync('currentStageId')
-  if (currentStageId.value === 1 || currentStageId.value === null) {
+  console.log(currentStageId.value)
+  const token=uni.getStorageSync('token')
+  if (currentStageId.value === 1) {
     uni.showToast({ title: '暂未开放', icon: 'none' })
     return
   }
   uni.navigateTo({ url: page })
+  if(token===null){
+    uni.showModal({
+              title: '提示',
+              content: '您尚未登录，是否登录？',
+              success: function(res) {
+                if (res.confirm) {
+                  uni.switchTab({
+                    url: '/pages/myth/myth',
+                  })
+                }
+              }
+            })
+  }
 }
 const fetchStages = async (): Promise<void> => {
   try {
     const response = await http<{
-[x: string]: any; data: Stage[] 
+[x: string]: any;
+ data: Stage[] 
 }>({
       url: '/stage/listStage',
       method: 'GET'
     })
     const stages = response
     const now = new Date()
-    //比较时间限制阶段开放
-    const currentStage = stages.find(stage => {
+    //比较时间获取stageid，以展示预约时间
+    const currentStage = stages.find((stage: { startTime: Date; endTime: Date; }) => {
       const start = new Date(stage.startTime)
       const end = new Date(stage.endTime)
       return now >= start && now <= end
@@ -66,14 +84,9 @@ const fetchStages = async (): Promise<void> => {
       currentStageId.value = currentStage.stageId
       uni.setStorageSync('currentStageId', currentStageId.value)
       uni.setStorageSync('currentStageName', currentStage.stageName)
-    } else {
-      currentStageId.value = null
-      uni.removeStorageSync('currentStageId')
-      uni.removeStorageSync('currentStageName')
     }
   } catch (error) {
     console.error('获取阶段失败:', error)
-    currentStageId.value = null
   }
 }
 onMounted(() => {
