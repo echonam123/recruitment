@@ -182,7 +182,7 @@ function changeColor(e) {
     frontColor:'#000000',
     backgroundColor: colorList[currentPage.value],
     success: function() {
-      console.log('导航栏颜色设置成功')
+      // console.log('导航栏颜色设置成功')
     },
     fail: function(res) {
       console.log(res.errMsg)

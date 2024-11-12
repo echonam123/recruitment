@@ -5,7 +5,7 @@
 		</uni-section>
 		<view class="content">
 			<image
-				src="../../static/cat-4.png"
+				src="@/static/cat-4.png"
 				mode="scaleToFill"
 				style="height: 40px; width: 100px; margin-left: 260px; margin-top: 30px;"
 			/>
@@ -26,7 +26,7 @@
 				</view>
 		</view>
 		<image
-			src="../../static/cat-3.png"
+			src="@/static/cat-3.png"
 			mode="scaleToFill"
 			style="width: 100%; height: 100px; margin-bottom: 0;"
 		/>

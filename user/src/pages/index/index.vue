@@ -2,7 +2,7 @@
   <view class="homePage" @tap="showBtn">
         <view class="logo" :class="{upLogo:isShow}">
           <image
-          src="../../static/logo.png"
+          src="@/static/logo.png"
           mode="widthFix"
           :class="{logoImg:!isShow}"
         />

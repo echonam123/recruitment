@@ -13,12 +13,17 @@
 			}
 		},
 		{
-			"path": "pages/intro/intro",
+			"path": "pages/process/process",
 			"style": {
 			}
 		},
 		{
-			"path": "pages/process/process",
+			"path": "pages/myth/myth",
+			"style": {
+			}
+		},
+		{
+			"path": "pages/intro/intro",
 			"style": {
 			}
 		},
@@ -27,11 +32,6 @@
 			"style": {
 				"enablePullDownRefresh": true,
 				"backgroundColor": "#a1d8b0"
-			}
-		},
-		{
-			"path": "pages/myth/myth",
-			"style": {
 			}
 		},
 		{
