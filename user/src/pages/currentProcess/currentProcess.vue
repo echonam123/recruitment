@@ -1,4 +1,5 @@
 <template>
+	<h2 class="example-info">当前面试状态</h2>
   <view class="content">
     <view class="timeline-list">
       <view v-for="(item, index) in list" :key="index" class="timeline-item">
@@ -221,8 +222,16 @@ onPullDownRefresh(async () => {
 })
 </script>
 
-<!-- 时间轴样式 -->
 <style lang="less" scoped>
+.example-info {
+  text-align: center;
+  background: linear-gradient(90deg, #f67252, #92fa7d);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 26px;
+  margin-top: 20px;
+}
+// 时间轴样式 
 .timeline-list {
     margin: 32rpx;
     margin-top: 62rpx;
