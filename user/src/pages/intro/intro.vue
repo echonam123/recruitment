@@ -19,7 +19,7 @@
         }"></view>
         <view class="content">
           <image
-            src="../../static/logo2.png"
+            src="@/static/logo2.png"
             mode="widthFix"
           />
           <view class="content-text">
@@ -84,34 +84,40 @@
     <swiper-item>
       <scroll-view scroll-y style="height:100%;">
         <view class="intro-title">
-        <view class="tag">
-          <uni-tag 
-          text="你问我答"
-					custom-style="background-color: #f44e40; border-color: #f44e40; color: #fff; font-weight:700; font-size: 40rpx;"
-          >
-					</uni-tag>
-          <view class="line"></view>
+          <view class="tag">
+            <uni-tag 
+            text="你问我答"
+            custom-style="background-color: #f44e40; border-color: #f44e40; color: #fff; font-weight:700; font-size: 40rpx;"
+            >
+            </uni-tag>
+            <view class="line"></view>
+          </view>
         </view>
-      </view>
-      <uni-card :is-shadow="false" class="Box_QA" v-for="(item,index) in QA_List" :key="index" scroll-wrap margin="0 20rpx">
-				<view class="content_Q">{{ item.Q }}</view>
-        <view class="content_A">
-          {{ item.A }}
-        </view>
-			</uni-card>
+        <uni-card :is-shadow="false" class="Box_QA" v-for="(item,index) in QA_List" :key="index" scroll-wrap margin="0 20rpx">
+          <view class="content_Q">{{ item.Q }}</view>
+          <view class="content_A">
+            {{ item.A }}
+          </view>
+        </uni-card>
       </scroll-view>
     </swiper-item>
+    <!-- 日常 -->
     <swiper-item>
-      <view class="intro-title">
-        <view class="tag">
-          <uni-tag 
-          text="日常"
-					custom-style="background-color: #c6a2d2; border-color: #c6a2d2; color: #fff; font-weight:700; font-size: 40rpx;"
-          >
-					</uni-tag>
-          <view class="line"></view>
+      <scroll-view scroll-y style="height:100%;">
+        <view class="intro-title" style="margin-bottom: 40rpx;">
+          <view class="tag">
+            <uni-tag 
+            text="日常"
+            custom-style="background-color: #c6a2d2; border-color: #c6a2d2; color: #fff; font-weight:700; font-size: 40rpx;"
+            >
+            </uni-tag>
+            <view class="line"></view>
+          </view>
         </view>
-      </view>
+        <view v-for="item in 5" :key="item" class="imgBox">
+          <img :src="`/static/routine${item}.jpg`" alt="" style="width: 100%;" mode="widthFix">
+        </view>
+      </scroll-view>
     </swiper-item>
   </swiper>
 </template>
@@ -285,5 +291,15 @@ swiper-item{
   6px 0px 6px rgba(244, 78, 64,.6),
  -6px 0px 6px rgba(244, 78, 64,.6);
  margin-bottom: 10rpx;
+}
+/* 对于照片框 */
+.imgBox{
+  padding: 10rpx;
+  margin: 20rpx auto 30rpx auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  border: 5px solid #dfd4f7;
 }
 </style>
