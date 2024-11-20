@@ -134,9 +134,22 @@ const fetchStages = async (): Promise<void> => {
         console.error('获取用户信息失败:', error)
       }
   }
+  async function fetchReservationId() {
+    try{
+      const currentReservationId= await http<number>({
+        url:'/interview',
+        method:'GET'
+      })
+      uni.setStorageSync('currentReservationId', currentReservationId)
+    }
+    catch (error) {
+        console.error('获取预约 ID 失败:', error)
+    }
+  }
 onMounted(() => {
   fetchStages()
   fetchUserInfo()
+  fetchReservationId()
 })
 </script>
 <style>
