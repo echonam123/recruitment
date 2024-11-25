@@ -136,7 +136,7 @@
 }
 
 .swiper-item0 {
-	background-color: #a5f389;
+	background-color: #a1d8b0;
 }
 .swiper-item1 {
 	background-color: #b2cef7;

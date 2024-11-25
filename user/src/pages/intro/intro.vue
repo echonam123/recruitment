@@ -51,7 +51,7 @@
           <view class="list">
             <view v-for="(item ,index) in achievements" :key="index" class="listItem">
               <view class="list-dot"></view>
-              <text>{{item}}</text>
+              <view>{{item}}</view>
             </view>
           </view>
         </view>
@@ -130,17 +130,17 @@ let colorList = [
 ]
 let achievements = [
   '国家海洋局南海分局北斗航标系统',
-  '广州市供电局运营分析平台清远市输电运维决策支持系统',
+  '广州市供电局运营分析平台',
+  '清远市输电运维决策支持系统',
   '"友捎"带货App',
   '广东玉兰集团有限公司B2B订单系统',
   '小鱿鱼智能塑料瓶回收箱',
-  '智能塑料瓶回收箱？',
   '上腾科技云平台系统',
   '"百货校园行"小程序',
   '美丽乡村智慧社区平台',
   '韶关市供电局-基于GIS的可视化规划平台',
   '汕头、湛江的智能配电网辅助决策系统',
-  '南方电网一一基于GIS的智能配电网自动规划系统',
+  '南方电网—基于GIS智能配电网自动规划系统',
 ]
 let directions = [
   {
@@ -248,7 +248,7 @@ swiper-item{
 }
 /* 对于列表样式 */
 .list-dot{
-  margin: 0 10px;
+  margin: 0 20rpx;
   width: 20rpx;
   height:20rpx;
   border-radius: 50%;
@@ -276,6 +276,7 @@ swiper-item{
   font-size: 40rpx;
 }
 .dirDesc{
+  padding: 0 20rpx;
   color: #646464;
 }
 /* QA问答 */
