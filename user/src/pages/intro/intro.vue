@@ -51,7 +51,7 @@
           <view class="list">
             <view v-for="(item ,index) in achievements" :key="index" class="listItem">
               <view class="list-dot"></view>
-              <view>{{item}}</view>
+              <text>{{item}}</text>
             </view>
           </view>
         </view>
@@ -138,7 +138,7 @@ let achievements = [
   '上腾科技云平台系统',
   '"百货校园行"小程序',
   '美丽乡村智慧社区平台',
-  '韶关市供电局-基于GIS的可视化规划平台',
+  '韶关市供电局—基于GIS的可视化规划平台',
   '汕头、湛江的智能配电网辅助决策系统',
   '南方电网—基于GIS智能配电网自动规划系统',
 ]
@@ -259,6 +259,9 @@ swiper-item{
   align-items: center;
   font-size: 35rpx;
   color: #646464;
+}
+.listItem text{
+  flex: 1;
 }
 /* 对于招新方向模块 */
 .dot{
